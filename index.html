@@ -117,6 +117,21 @@
         
         .expiry-warning { color: var(--danger); font-size: 0.9rem; margin-top: 5px; display: none; }
         
+        /* تنسيقات التحقق */
+        .verification-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); max-width: 400px; margin: 0 auto; display: none; }
+        .verification-title { color: var(--primary); font-size: 1.8rem; margin-bottom: 30px; text-align: center; font-weight: 600; }
+        
+        /* تنسيقات البروفايل */
+        .profile-header { background: var(--gradient); color: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; display: flex; align-items: center; gap: 20px; }
+        .profile-image { width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; object-fit: cover; }
+        .profile-info { flex: 1; }
+        .profile-name { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; }
+        .profile-role { font-size: 1.1rem; opacity: 0.9; }
+        
+        /* تنسيقات OTP */
+        .otp-input { text-align: center; font-size: 1.5rem; font-weight: bold; letter-spacing: 8px; }
+        .otp-message { background: #e6fffa; border: 2px solid #38a169; color: #22543d; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; font-weight: 600; }
+        
         @media (max-width: 768px) {
             .nav-cards, .form-grid { grid-template-columns: 1fr; }
             .table-header { flex-direction: column; align-items: stretch; }
@@ -127,6 +142,7 @@
             .job-announcement h2 { font-size: 1.8rem; }
             .job-announcement h3 { font-size: 1.4rem; }
             .job-announcement p, .job-announcement li { font-size: 1rem; }
+            .profile-header { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -282,8 +298,50 @@
             </div>
         </div>
 
+        <!-- Verification Container -->
+        <div id="verificationContainer" class="verification-container">
+            <h2 class="verification-title" data-ar="التحقق من الهوية" data-en="Identity Verification" data-ur="شناختی تصدیق">التحقق من الهوية</h2>
+            
+            <div class="otp-message" id="otpMessage">
+                <i class="fas fa-shield-alt"></i>
+                <span data-ar="تم إرسال رمز التحقق إلى المشرف أحمد الصادق" data-en="Verification code has been sent to supervisor Ahmed Al-Sadiq" data-ur="تصدیقی کوڈ سپروائزر احمد الصادق کو بھیج دیا گیا ہے">تم إرسال رمز التحقق إلى المشرف أحمد الصادق</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-ar="أدخل رمز التحقق (OTP)" data-en="Enter Verification Code (OTP)" data-ur="تصدیقی کوڈ درج کریں (OTP)">أدخل رمز التحقق (OTP)</label>
+                <input type="password" class="form-input otp-input" id="otpCode" placeholder="●●●●●●" maxlength="6">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-success btn-full" onclick="verifyOTP()">
+                    <i class="fas fa-check-circle"></i>
+                    <span data-ar="تحقق" data-en="Verify" data-ur="تصدیق کریں">تحقق</span>
+                </button>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary btn-full" onclick="showSupervisorLogin()">
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-ar="العودة لتسجيل الدخول" data-en="Back to Login" data-ur="لاگ ان پر واپس جائیں">العودة لتسجيل الدخول</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Supervisor Dashboard -->
         <div id="supervisorDashboard" class="form-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <img src="https://i.ibb.co/vrKBxqC/profile.jpg" alt="Ahmed Al-Sadiq" class="profile-image">
+                <div class="profile-info">
+                    <h2 class="profile-name">أحمد الصادق</h2>
+                    <p class="profile-role" data-ar="مشرف نظام التوظيف" data-en="Employment System Supervisor" data-ur="ملازمت کے نظام کا سپروائزر">مشرف نظام التوظيف</p>
+                </div>
+                <button class="btn btn-danger" onclick="supervisorLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span data-ar="تسجيل الخروج" data-en="Logout" data-ur="لاگ آؤٹ">تسجيل الخروج</span>
+                </button>
+            </div>
+
             <div class="table-header">
                 <h2 class="table-title" data-ar="طلبات التوظيف المسجلة" data-en="Registered Job Applications" data-ur="رجسٹرڈ ملازمت کی درخواستیں">طلبات التوظيف المسجلة</h2>
                 <div class="filters">
@@ -307,10 +365,6 @@
                 <button class="btn btn-primary" onclick="exportToExcel()">
                     <i class="fas fa-file-excel"></i>
                     <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
-                </button>
-                <button class="btn btn-danger" onclick="supervisorLogout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span data-ar="تسجيل الخروج" data-en="Logout" data-ur="لاگ آؤٹ">تسجيل الخروج</span>
                 </button>
             </div>
 
@@ -343,7 +397,9 @@
             selectedResidenceImage: null,
             selectedLicenseImage: null,
             hasExpiredResidence: false,
-            hasExpiredLicense: false
+            hasExpiredLicense: false,
+            // كود التحقق المشفر
+            verificationCode: "0460350083"
         };
 
         window.onFirebaseReady = function() {
@@ -442,6 +498,7 @@
             document.getElementById('supervisorLogin').style.display = 'none';
             document.getElementById('supervisorDashboard').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('verificationContainer').style.display = 'none';
             document.querySelector('.nav-cards').style.display = 'grid';
             document.getElementById('jobAnnouncement').style.display = 'block';
             resetForm();
@@ -453,6 +510,7 @@
             document.getElementById('supervisorLogin').style.display = 'none';
             document.getElementById('supervisorDashboard').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('verificationContainer').style.display = 'none';
             document.getElementById('jobAnnouncement').style.display = 'none';
             resetForm();
         }
@@ -463,9 +521,21 @@
             document.getElementById('supervisorLogin').style.display = 'block';
             document.getElementById('supervisorDashboard').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('verificationContainer').style.display = 'none';
             document.getElementById('jobAnnouncement').style.display = 'none';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+        }
+
+        function showVerificationContainer() {
+            document.querySelector('.nav-cards').style.display = 'none';
+            document.getElementById('jobApplicationForm').style.display = 'none';
+            document.getElementById('supervisorLogin').style.display = 'none';
+            document.getElementById('supervisorDashboard').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('verificationContainer').style.display = 'block';
+            document.getElementById('jobAnnouncement').style.display = 'none';
+            document.getElementById('otpCode').value = '';
         }
 
         function showSupervisorDashboard() {
@@ -474,6 +544,7 @@
             document.getElementById('supervisorLogin').style.display = 'none';
             document.getElementById('supervisorDashboard').style.display = 'block';
             document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('verificationContainer').style.display = 'none';
             document.getElementById('jobAnnouncement').style.display = 'none';
             loadJobApplications();
         }
@@ -508,16 +579,28 @@
             const password = document.getElementById('password').value;
 
             if (username === 'احمد الصادق' && password === '0094') {
-                showSupervisorDashboard();
-                showNotification(getTranslation('تم تسجيل الدخول بنجاح', 'Login successful', 'لاگ ان کامیاب'), 'success');
+                showVerificationContainer();
+                showNotification(getTranslation('تم إرسال رمز التحقق', 'Verification code has been sent', 'تصدیقی کوڈ بھیج دیا گیا ہے'), 'info');
             } else {
                 showNotification(getTranslation('بيانات الدخول غير صحيحة', 'Invalid login credentials', 'غلط لاگ ان کی تفصیلات'), 'error');
+            }
+        }
+
+        function verifyOTP() {
+            const otpCode = document.getElementById('otpCode').value;
+            
+            if (otpCode === systemState.verificationCode) {
+                showSupervisorDashboard();
+                showNotification(getTranslation('✅ تم التحقق من الهوية - المشرف أحمد الصادق', '✅ Identity verified - Supervisor Ahmed Al-Sadiq', '✅ شناخت کی تصدیق ہو گئی - سپروائزر احمد الصادق'), 'success');
+            } else {
+                showNotification(getTranslation('❌ رمز التحقق غير صحيح', '❌ Invalid verification code', '❌ غلط تصدیقی کوڈ'), 'error');
             }
         }
 
         function supervisorLogout() {
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            document.getElementById('otpCode').value = '';
             showHomePage();
             showNotification(getTranslation('تم تسجيل الخروج', 'Logged out successfully', 'لاگ آؤٹ کامیاب'), 'info');
         }
