@@ -10,7 +10,7 @@
     <!-- إضافة Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCWQ2q1HU_LLQKkp2KRlOZ1FdF0bI6jBbM",
@@ -25,7 +25,7 @@
         const db = getFirestore(app);
 
         window.db = db;
-        window.firestoreFunctions = { collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, getDoc };
+        window.firestoreFunctions = { collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, getDoc, updateDoc };
 
         console.log("✅ Firebase initialized successfully");
         window.firebaseReady = true;
@@ -141,6 +141,8 @@
         .data-table tr:hover { background: #f7fafc; }
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
         .status-active { background: #c6f6d5; color: #22543d; }
+        .status-expired { background: #fed7d7; color: #c53030; }
+        .status-warning { background: #fefcbf; color: #744210; }
         
         .login-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); max-width: 400px; margin: 0 auto; display: none; }
         .login-title { color: var(--primary); font-size: 1.8rem; margin-bottom: 30px; text-align: center; font-weight: 600; }
@@ -163,7 +165,8 @@
         
         .success-message { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 25px; border-radius: 15px; margin-top: 30px; text-align: center; display: none; }
         
-        .expiry-warning { color: var(--danger); font-size: 0.9rem; margin-top: 5px; display: none; }
+        .expiry-warning { color: var(--warning); font-size: 0.9rem; margin-top: 5px; display: none; }
+        .expiry-info { color: var(--accent); font-size: 0.9rem; margin-top: 5px; display: none; }
         
         /* تنسيقات التحقق */
         .verification-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); max-width: 400px; margin: 0 auto; display: none; }
@@ -293,13 +296,14 @@
                     <div class="form-group">
                         <label class="form-label" data-ar="تاريخ انتهاء الإقامة" data-en="Residence Expiry Date" data-ur="رہائشی کی میعاد ختم ہونے کی تاریخ">تاريخ انتهاء الإقامة</label>
                         <input type="date" class="form-input" id="residenceExpiry" required onchange="checkExpiry(this, 'residence')">
-                        <div class="expiry-warning" id="residenceWarning" data-ar="❌ إقامتك منتهية" data-en="❌ Your residence is expired" data-ur="❌ آپ کی رہائش ختم ہو گئی ہے">❌ إقامتك منتهية</div>
+                        <div class="expiry-info" id="residenceInfo" data-ar="⚠️ يمكن تقديم الطلب حتى مع انتهاء الإقامة" data-en="⚠️ Application can be submitted even with expired residence" data-ur="⚠️ درخواست رہائشی ختم ہونے کے باوجود بھی جمع کرائی جا سکتی ہے">⚠️ يمكن تقديم الطلب حتى مع انتهاء الإقامة</div>
+                        <div class="expiry-warning" id="residenceWarning" data-ar="⚠️ إقامتك منتهية - يمكنك تقديم الطلب" data-en="⚠️ Your residence is expired - You can still submit the application" data-ur="⚠️ آپ کی رہائش ختم ہو گئی ہے - آپ پھر بھی درخواست جمع کروا سکتے ہیں">⚠️ إقامتك منتهية - يمكنك تقديم الطلب</div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" data-ar="تاريخ انتهاء الرخصة" data-en="License Expiry Date" data-ur="لائسنس کی میعاد ختم ہونے کی تاریخ">تاريخ انتهاء الرخصة</label>
                         <input type="date" class="form-input" id="licenseExpiry" required onchange="checkExpiry(this, 'license')">
-                        <div class="expiry-warning" id="licenseWarning" data-ar="❌ رخصتك منتهية" data-en="❌ Your license is expired" data-ur="❌ آپ کا لائسنس ختم ہو گیا ہے">❌ رخصتك منتهية</div>
+                        <div class="expiry-warning" id="licenseWarning" data-ar="❌ رخصتك منتهية - لا يمكن تقديم الطلب" data-en="❌ Your license is expired - Cannot submit application" data-ur="❌ آپ کا لائسنس ختم ہو گیا ہے - درخواست جمع نہیں کرائی جا سکتی">❌ رخصتك منتهية - لا يمكن تقديم الطلب</div>
                     </div>
                 </div>
 
@@ -437,6 +441,15 @@
                             <label class="filter-label" data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</label>
                             <input type="date" class="form-input" id="filterDate">
                         </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label" data-ar="حالة الإقامة" data-en="Residence Status" data-ur="رہائشی کی حالت">حالة الإقامة</label>
+                            <select class="form-select" id="filterResidenceStatus">
+                                <option value="" data-ar="الكل" data-en="All" data-ur="سب">الكل</option>
+                                <option value="active" data-ar="سارية" data-en="Active" data-ur="درست">سارية</option>
+                                <option value="expired" data-ar="منتهية" data-en="Expired" data-ur="ختم">منتهية</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -460,7 +473,9 @@
                                 <th data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</th>
                                 <th data-ar="رقم اللوحة" data-en="Plate Number" data-ur="پلیٹ نمبر">رقم اللوحة</th>
                                 <th data-ar="انتهاء الإقامة" data-en="Residence Expiry" data-ur="رہائشی کی میعاد">انتهاء الإقامة</th>
+                                <th data-ar="حالة الإقامة" data-en="Residence Status" data-ur="رہائشی کی حالت">حالة الإقامة</th>
                                 <th data-ar="انتهاء الرخصة" data-en="License Expiry" data-ur="لائسنس کی میعاد">انتهاء الرخصة</th>
+                                <th data-ar="حالة الرخصة" data-en="License Status" data-ur="لائسنس کی حالت">حالة الرخصة</th>
                                 <th data-ar="صورة الإقامة" data-en="Residence Photo" data-ur="رہائشی تصویر">صورة الإقامة</th>
                                 <th data-ar="صورة الرخصة" data-en="License Photo" data-ur="لائسنس تصویر">صورة الرخصة</th>
                                 <th data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</th>
@@ -620,17 +635,23 @@
             const expiryDate = new Date(input.value);
             const today = new Date();
             const warningElement = document.getElementById(type + 'Warning');
+            const infoElement = document.getElementById(type + 'Info');
             
             if (expiryDate < today) {
-                warningElement.style.display = 'block';
                 if (type === 'residence') {
+                    // للإقامة: إظهار رسالة تنبيه ولكن السماح بالتقديم
+                    warningElement.style.display = 'block';
+                    infoElement.style.display = 'none';
                     systemState.hasExpiredResidence = true;
                 } else {
+                    // للرخصة: منع التقديم
+                    warningElement.style.display = 'block';
                     systemState.hasExpiredLicense = true;
                 }
             } else {
                 warningElement.style.display = 'none';
                 if (type === 'residence') {
+                    infoElement.style.display = 'block';
                     systemState.hasExpiredResidence = false;
                 } else {
                     systemState.hasExpiredLicense = false;
@@ -833,6 +854,7 @@
             document.getElementById('licensePreview').innerHTML = '';
             document.getElementById('residenceWarning').style.display = 'none';
             document.getElementById('licenseWarning').style.display = 'none';
+            document.getElementById('residenceInfo').style.display = 'block';
             systemState.currentEditingId = null;
             systemState.selectedResidenceImage = null;
             systemState.selectedLicenseImage = null;
@@ -882,12 +904,7 @@
                 return;
             }
 
-            // التحقق من صلاحية الإقامة والرخصة
-            if (systemState.hasExpiredResidence) {
-                showNotification(getTranslation('❌ لا يمكن تقديم الطلب - إقامتك منتهية', '❌ Cannot submit application - Your residence is expired', '❌ درخواست جمع نہیں کرائی جا سکتی - آپ کی رہائش ختم ہو گئی ہے'), 'error');
-                return;
-            }
-
+            // التحقق من صلاحية الرخصة فقط (الإقامة مسموح بها حتى لو منتهية)
             if (systemState.hasExpiredLicense) {
                 showNotification(getTranslation('❌ لا يمكن تقديم الطلب - رخصتك منتهية', '❌ Cannot submit application - Your license is expired', '❌ درخواست جمع نہیں کرائی جا سکتی - آپ کا لائسنس ختم ہو گیا ہے'), 'error');
                 return;
@@ -907,6 +924,8 @@
                     vehiclePlate: document.getElementById('vehiclePlate').value.trim(),
                     residenceExpiry: document.getElementById('residenceExpiry').value,
                     licenseExpiry: document.getElementById('licenseExpiry').value,
+                    residenceStatus: systemState.hasExpiredResidence ? 'expired' : 'active',
+                    licenseStatus: systemState.hasExpiredLicense ? 'expired' : 'active',
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date(),
                     status: 'pending',
@@ -1082,10 +1101,11 @@
             try {
                 loadBtn.innerHTML = '<div class="loading"></div> ' + getTranslation('جاري التحميل...', 'Loading...', 'لوڈ ہو رہا ہے...');
                 loadBtn.disabled = true;
-                tableBody.innerHTML = '<tr><td colspan="10" class="text-center">' + getTranslation('جاري تحميل البيانات...', 'Loading data...', 'ڈیٹا لوڈ ہو رہا ہے...') + '</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="12" class="text-center">' + getTranslation('جاري تحميل البيانات...', 'Loading data...', 'ڈیٹا لوڈ ہو رہا ہے...') + '</td></tr>';
 
                 const filterName = document.getElementById('filterName').value.toLowerCase();
                 const filterDate = document.getElementById('filterDate').value;
+                const filterResidenceStatus = document.getElementById('filterResidenceStatus').value;
 
                 const q = window.firestoreFunctions.query(
                     window.firestoreFunctions.collection(window.db, "jobApplications"),
@@ -1104,17 +1124,26 @@
                 const filteredData = applicationsData.filter(item => {
                     const matchName = !filterName || (item.fullName && item.fullName.toLowerCase().includes(filterName));
                     const matchDate = !filterDate || item.date === filterDate;
-                    return matchName && matchDate;
+                    const matchResidenceStatus = !filterResidenceStatus || item.residenceStatus === filterResidenceStatus;
+                    return matchName && matchDate && matchResidenceStatus;
                 });
 
                 tableBody.innerHTML = '';
 
                 if (filteredData.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="10" class="text-center">' + getTranslation('لا توجد بيانات مطابقة', 'No matching data found', 'کوئی مماثل ڈیٹا نہیں ملا') + '</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="12" class="text-center">' + getTranslation('لا توجد بيانات مطابقة', 'No matching data found', 'کوئی مماثل ڈیٹا نہیں ملا') + '</td></tr>';
                     return;
                 }
 
                 filteredData.forEach(item => {
+                    const residenceStatusBadge = item.residenceStatus === 'active' ? 
+                        '<span class="status-badge status-active">' + getTranslation('سارية', 'Active', 'درست') + '</span>' :
+                        '<span class="status-badge status-expired">' + getTranslation('منتهية', 'Expired', 'ختم') + '</span>';
+                    
+                    const licenseStatusBadge = item.licenseStatus === 'active' ? 
+                        '<span class="status-badge status-active">' + getTranslation('سارية', 'Active', 'درست') + '</span>' :
+                        '<span class="status-badge status-expired">' + getTranslation('منتهية', 'Expired', 'ختم') + '</span>';
+                    
                     const row = `
                         <tr data-id="${item.id}">
                             <td>${item.fullName || '-'}</td>
@@ -1122,7 +1151,9 @@
                             <td>${item.vehicleType || '-'}</td>
                             <td>${item.vehiclePlate || '-'}</td>
                             <td>${item.residenceExpiry || '-'}</td>
+                            <td>${residenceStatusBadge}</td>
                             <td>${item.licenseExpiry || '-'}</td>
+                            <td>${licenseStatusBadge}</td>
                             <td>
                                 ${item.residenceImageUrl ? 
                                     `<a href="${item.residenceImageUrl}" target="_blank" class="btn btn-primary btn-small">
@@ -1163,7 +1194,7 @@
                 }
                 
                 showNotification(errorMessage, 'error');
-                tableBody.innerHTML = '<tr><td colspan="10" class="text-center">' + getTranslation('حدث خطأ في تحميل البيانات', 'Error loading data', 'ڈیٹا لوڈ کرنے میں خرابی') + '</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="12" class="text-center">' + getTranslation('حدث خطأ في تحميل البيانات', 'Error loading data', 'ڈیٹا لوڈ کرنے میں خرابی') + '</td></tr>';
             } finally {
                 loadBtn.innerHTML = originalText;
                 loadBtn.disabled = false;
@@ -1218,7 +1249,7 @@
                 filteredData.forEach(item => {
                     const statusBadge = item.status === 'approved' ? 
                         '<span class="status-badge status-active">' + getTranslation('موافق', 'Approved', 'منظور') + '</span>' :
-                        '<span class="status-badge" style="background: #fed7d7; color: #c53030;">' + getTranslation('معلق', 'Pending', 'زیر التواء') + '</span>';
+                        '<span class="status-badge status-warning">' + getTranslation('معلق', 'Pending', 'زیر التواء') + '</span>';
                     
                     const row = `
                         <tr data-id="${item.id}">
