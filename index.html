@@ -92,7 +92,19 @@
             height: 4px; 
             background: linear-gradient(90deg, var(--accent), var(--success)); 
         }
-        .logo { width: 120px; height: auto; margin-bottom: 15px; }
+        .video-container { 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 0 auto 20px; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .video-container video { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+        }
         .main-title { font-size: 2.2rem; margin-bottom: 10px; font-weight: 700; }
         .sub-title { font-size: 1.1rem; opacity: 0.9; }
         
@@ -210,7 +222,12 @@
 
     <div class="container">
         <div class="header">
-            <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/dOqNLp8LNNTl7Vlk/alzahrani-logistics-corporate-logo-photoroom-AR03Qav69VTGKk9B.png" alt="Al-Zahrani Logo" class="logo">
+            <div class="video-container">
+                <video autoplay muted loop>
+                    <source src="https://res.cloudinary.com/dfgp8dwj3/video/upload/v1761726342/%D8%A7%D9%84%D8%B2%D9%87%D8%B1%D8%A7%D9%86%D9%8A_1_p6ydli.mp4" type="video/mp4">
+                    متصفحك لا يدعم تشغيل الفيديو
+                </video>
+            </div>
             <h1 class="main-title" data-ar="نظام التوظيف" data-en="Employment System" data-ur="ملازمت کا نظام">نظام التوظيف</h1>
             <p class="sub-title" data-ar="Al-Zahrani Logistics - نظام التوظيف" data-en="Al-Zahrani Logistics - Employment System" data-ur="الزہرانی لوجسٹکس - ملازمت کا نظام">Al-Zahrani Logistics - نظام التوظيف</p>
         </div>
@@ -1173,6 +1190,9 @@
                             <td>${item.date || '-'}</td>
                             <td>
                                 <div class="btn-group">
+                                    <button class="btn btn-warning btn-small" onclick="editApplication('${item.id}')">
+                                        <i class="fas fa-edit"></i> ${getTranslation('تعديل', 'Edit', 'ترمیم')}
+                                    </button>
                                     <button class="btn btn-danger btn-small" onclick="deleteApplication('${item.id}')">
                                         <i class="fas fa-trash"></i> ${getTranslation('حذف', 'Delete', 'حذف کریں')}
                                     </button>
@@ -1264,6 +1284,9 @@
                             <td>${statusBadge}</td>
                             <td>
                                 <div class="btn-group">
+                                    <button class="btn btn-warning btn-small" onclick="editAdvanceRequest('${item.id}')">
+                                        <i class="fas fa-edit"></i> ${getTranslation('تعديل', 'Edit', 'ترمیم')}
+                                    </button>
                                     <button class="btn btn-success btn-small" onclick="approveAdvanceRequest('${item.id}')">
                                         <i class="fas fa-check"></i> ${getTranslation('موافقة', 'Approve', 'منظوری')}
                                     </button>
@@ -1292,6 +1315,94 @@
             } finally {
                 loadBtn.innerHTML = originalText;
                 loadBtn.disabled = false;
+            }
+        }
+
+        // دالة تعديل طلب التوظيف
+        async function editApplication(applicationId) {
+            if (!systemState.firebaseReady) {
+                showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
+                return;
+            }
+
+            try {
+                const docRef = window.firestoreFunctions.doc(window.db, "jobApplications", applicationId);
+                const docSnap = await window.firestoreFunctions.getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // تعبئة النموذج بالبيانات
+                    document.getElementById('fullName').value = data.fullName || '';
+                    document.getElementById('phoneNumber').value = data.phoneNumber || '';
+                    document.getElementById('vehicleType').value = data.vehicleType || '';
+                    document.getElementById('vehiclePlate').value = data.vehiclePlate || '';
+                    document.getElementById('residenceExpiry').value = data.residenceExpiry || '';
+                    document.getElementById('licenseExpiry').value = data.licenseExpiry || '';
+                    
+                    // تحديث حالة النظام
+                    systemState.currentEditingId = applicationId;
+                    
+                    // تغيير نص زر الإرسال
+                    const submitBtn = document.getElementById('submitBtn');
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> <span data-ar="تحديث الطلب" data-en="Update Application" data-ur="درخواست اپ ڈیٹ کریں">تحديث الطلب</span>';
+                    
+                    // إظهار نموذج التقديم
+                    showJobApplicationForm();
+                    
+                    showNotification(getTranslation('✅ تم تحميل بيانات الطلب للتعديل', '✅ Application data loaded for editing', '✅ ترمیم کے لیے درخواست کا ڈیٹا لوڈ ہو گیا'), 'success');
+                } else {
+                    showNotification(getTranslation('❌ لم يتم العثور على الطلب', '❌ Application not found', '❌ درخواست نہیں ملی'), 'error');
+                }
+            } catch (error) {
+                console.error('Error loading application for editing:', error);
+                showNotification(getTranslation('❌ حدث خطأ أثناء تحميل بيانات الطلب', '❌ Error loading application data', '❌ درخواست کا ڈیٹا لوڈ کرنے میں خرابی'), 'error');
+            }
+        }
+
+        // دالة تعديل طلب السلفية
+        async function editAdvanceRequest(advanceId) {
+            if (!systemState.firebaseReady) {
+                showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
+                return;
+            }
+
+            try {
+                const docRef = window.firestoreFunctions.doc(window.db, "advanceRequests", advanceId);
+                const docSnap = await window.firestoreFunctions.getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // تعبئة النموذج بالبيانات
+                    document.getElementById('employeeName').value = data.employeeName || '';
+                    document.getElementById('project').value = data.project || '';
+                    document.getElementById('residenceNumber').value = data.residenceNumber || '';
+                    document.getElementById('advanceVehicleType').value = data.vehicleType || '';
+                    document.getElementById('motorcyclePlate').value = data.motorcyclePlate || '';
+                    document.getElementById('carPlate').value = data.carPlate || '';
+                    document.getElementById('advanceAmount').value = data.amount || '';
+                    
+                    // تحديث حالة النظام
+                    systemState.currentEditingId = advanceId;
+                    
+                    // تحديث حقول اللوحات بناءً على نوع المركبة
+                    toggleAdvancePlateFields();
+                    
+                    // تغيير نص زر الإرسال
+                    const submitBtn = document.getElementById('submitAdvanceBtn');
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> <span data-ar="تحديث طلب السلفية" data-en="Update Advance Request" data-ur="ایڈوانس کی درخواست اپ ڈیٹ کریں">تحديث طلب السلفية</span>';
+                    
+                    // إظهار نموذج إضافة طلب السلفية
+                    showAddAdvanceRequestForm();
+                    
+                    showNotification(getTranslation('✅ تم تحميل بيانات طلب السلفية للتعديل', '✅ Advance request data loaded for editing', '✅ ترمیم کے لیے ایڈوانس کی درخواست کا ڈیٹا لوڈ ہو گیا'), 'success');
+                } else {
+                    showNotification(getTranslation('❌ لم يتم العثور على طلب السلفية', '❌ Advance request not found', '❌ ایڈوانس کی درخواست نہیں ملی'), 'error');
+                }
+            } catch (error) {
+                console.error('Error loading advance request for editing:', error);
+                showNotification(getTranslation('❌ حدث خطأ أثناء تحميل بيانات طلب السلفية', '❌ Error loading advance request data', '❌ ایڈوانس کی درخواست کا ڈیٹا لوڈ کرنے میں خرابی'), 'error');
             }
         }
 
