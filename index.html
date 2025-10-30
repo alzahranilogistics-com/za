@@ -199,6 +199,18 @@
         .page { display: none; }
         .active-page { display: block; }
         
+        .permissions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .permission-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+        .permission-item input { width: 18px; height: 18px; }
+        
+        .user-info { background: #e8f4fd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .user-info p { margin: 5px 0; font-weight: 500; }
+        
+        .activity-log { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 20px; }
+        .activity-log h3 { margin-bottom: 15px; color: var(--primary); }
+        .activity-item { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .activity-item:last-child { border-bottom: none; }
+        
         @media (max-width: 768px) {
             .nav-cards, .form-grid { grid-template-columns: 1fr; }
             .table-header { flex-direction: column; align-items: stretch; }
@@ -215,6 +227,7 @@
             .main-title { font-size: 2.2rem; }
             .sub-title { font-size: 1.2rem; }
             .dashboard-stats { grid-template-columns: 1fr; }
+            .permissions-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -406,6 +419,14 @@
                     </button>
                 </div>
 
+                <!-- معلومات المستخدم -->
+                <div class="user-info">
+                    <h3 data-ar="معلومات الجلسة" data-en="Session Information" data-ur="سیشن کی معلومات">معلومات الجلسة</h3>
+                    <p><strong data-ar="اسم المستخدم:" data-en="Username:" data-ur="صارف نام:">اسم المستخدم:</strong> <span id="sessionUsername">-</span></p>
+                    <p><strong data-ar="تاريخ الدخول:" data-en="Login Date:" data-ur="لاگ ان تاریخ:">تاريخ الدخول:</strong> <span id="sessionLoginDate">-</span></p>
+                    <p><strong data-ar="وقت الدخول:" data-en="Login Time:" data-ur="لاگ ان وقت:">وقت الدخول:</strong> <span id="sessionLoginTime">-</span></p>
+                </div>
+
                 <!-- Dashboard Stats -->
                 <div id="dashboardStats" class="dashboard-stats">
                     <div class="stat-card">
@@ -428,26 +449,34 @@
 
                 <!-- Supervisor Navigation -->
                 <div class="supervisor-nav">
-                    <button class="btn btn-primary supervisor-nav-btn" onclick="showPage('jobApplicationsPage')">
+                    <button class="btn btn-primary supervisor-nav-btn" onclick="showPage('jobApplicationsPage')" id="navJobApps">
                         <i class="fas fa-users"></i>
                         <span data-ar="طلبات التوظيف" data-en="Job Applications" data-ur="ملازمت کی درخواستیں">طلبات التوظيف</span>
                     </button>
-                    <button class="btn btn-success supervisor-nav-btn" onclick="showPage('advanceRequestsPage')">
+                    <button class="btn btn-success supervisor-nav-btn" onclick="showPage('advanceRequestsPage')" id="navAdvances">
                         <i class="fas fa-hand-holding-usd"></i>
                         <span data-ar="طلبات السلفيات" data-en="Advance Requests" data-ur="ایڈوانس کی درخواستیں">طلبات السلفيات</span>
                     </button>
-                    <button class="btn btn-warning supervisor-nav-btn" onclick="showPage('representativesPage')">
+                    <button class="btn btn-warning supervisor-nav-btn" onclick="showPage('representativesPage')" id="navRepresentatives">
                         <i class="fas fa-user-tie"></i>
                         <span data-ar="المندوبين" data-en="Representatives" data-ur="نمائندے">المندوبين</span>
                     </button>
-                    <button class="btn btn-danger supervisor-nav-btn" onclick="showPage('adminsPage')">
+                    <button class="btn btn-danger supervisor-nav-btn" onclick="showPage('adminsPage')" id="navAdmins">
                         <i class="fas fa-user-shield"></i>
                         <span data-ar="المشرفين" data-en="Supervisors" data-ur="سپروائزر">المشرفين</span>
                     </button>
-                    <button class="btn btn-info supervisor-nav-btn" onclick="showPage('reportsPage')">
+                    <button class="btn btn-info supervisor-nav-btn" onclick="showPage('reportsPage')" id="navReports">
                         <i class="fas fa-chart-bar"></i>
                         <span data-ar="التقارير" data-en="Reports" data-ur="رپورٹس">التقارير</span>
                     </button>
+                </div>
+
+                <!-- سجل النشاطات -->
+                <div class="activity-log">
+                    <h3 data-ar="آخر النشاطات" data-en="Recent Activities" data-ur="حالیہ سرگرمیاں">آخر النشاطات</h3>
+                    <div id="recentActivities">
+                        <!-- سيتم تحميل النشاطات هنا -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -479,7 +508,7 @@
                         <i class="fas fa-sync-alt"></i>
                         <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
                     </button>
-                    <button class="btn btn-primary" onclick="exportJobApplicationsToExcel()">
+                    <button class="btn btn-primary" onclick="exportJobApplicationsToExcel()" id="exportJobAppsBtn">
                         <i class="fas fa-file-excel"></i>
                         <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
                     </button>
@@ -500,6 +529,7 @@
                                 <th data-ar="انتهاء الإقامة" data-en="Residence Expiry" data-ur="رہائشی کی میعاد">انتهاء الإقامة</th>
                                 <th data-ar="انتهاء الرخصة" data-en="License Expiry" data-ur="لائسنس کی میعاد">انتهاء الرخصة</th>
                                 <th data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</th>
+                                <th data-ar="اضيف بواسطة" data-en="Added By" data-ur="کس نے شامل کیا">اضيف بواسطة</th>
                                 <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
                             </tr>
                         </thead>
@@ -609,11 +639,11 @@
                         <i class="fas fa-sync-alt"></i>
                         <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
                     </button>
-                    <button class="btn btn-primary" onclick="exportAdvanceRequestsToExcel()">
+                    <button class="btn btn-primary" onclick="exportAdvanceRequestsToExcel()" id="exportAdvancesBtn">
                         <i class="fas fa-file-excel"></i>
                         <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
                     </button>
-                    <button class="btn btn-warning" onclick="showPage('addAdvanceRequestPage')">
+                    <button class="btn btn-warning" onclick="showPage('addAdvanceRequestPage')" id="addAdvanceBtn">
                         <i class="fas fa-plus"></i>
                         <span data-ar="إضافة طلب سلفية" data-en="Add Advance Request" data-ur="ایڈوانس کی درخواست شامل کریں">إضافة طلب سلفية</span>
                     </button>
@@ -634,6 +664,7 @@
                                 <th data-ar="المبلغ" data-en="Amount" data-ur="رقم">المبلغ</th>
                                 <th data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</th>
                                 <th data-ar="الحالة" data-en="Status" data-ur="حالت">الحالة</th>
+                                <th data-ar="اضيف بواسطة" data-en="Added By" data-ur="کس نے شامل کیا">اضيف بواسطة</th>
                                 <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
                             </tr>
                         </thead>
@@ -727,11 +758,11 @@
                         <i class="fas fa-sync-alt"></i>
                         <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
                     </button>
-                    <button class="btn btn-primary" onclick="exportRepresentativesToExcel()">
+                    <button class="btn btn-primary" onclick="exportRepresentativesToExcel()" id="exportRepsBtn">
                         <i class="fas fa-file-excel"></i>
                         <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
                     </button>
-                    <button class="btn btn-warning" onclick="showPage('addRepresentativePage')">
+                    <button class="btn btn-warning" onclick="showPage('addRepresentativePage')" id="addRepBtn">
                         <i class="fas fa-plus"></i>
                         <span data-ar="إضافة مندوب جديد" data-en="Add New Representative" data-ur="نیا نمائندہ شامل کریں">إضافة مندوب جديد</span>
                     </button>
@@ -752,6 +783,7 @@
                                 <th data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</th>
                                 <th data-ar="رقم اللوحة" data-en="Plate Number" data-ur="پلیٹ نمبر">رقم اللوحة</th>
                                 <th data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</th>
+                                <th data-ar="اضيف بواسطة" data-en="Added By" data-ur="کس نے شامل کیا">اضيف بواسطة</th>
                                 <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
                             </tr>
                         </thead>
@@ -857,7 +889,7 @@
                         <i class="fas fa-sync-alt"></i>
                         <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
                     </button>
-                    <button class="btn btn-warning" onclick="showPage('addSupervisorPage')">
+                    <button class="btn btn-warning" onclick="showPage('addSupervisorPage')" id="addSupervisorBtn">
                         <i class="fas fa-plus"></i>
                         <span data-ar="إضافة مشرف جديد" data-en="Add New Supervisor" data-ur="نیا سپروائزر شامل کریں">إضافة مشرف جديد</span>
                     </button>
@@ -874,6 +906,7 @@
                                 <th data-ar="الاسم الكامل" data-en="Full Name" data-ur="پورا نام">الاسم الكامل</th>
                                 <th data-ar="اسم المستخدم" data-en="Username" data-ur="صارف نام">اسم المستخدم</th>
                                 <th data-ar="تاريخ الإضافة" data-en="Added Date" data-ur="شامل کرنے کی تاریخ">تاريخ الإضافة</th>
+                                <th data-ar="اضيف بواسطة" data-en="Added By" data-ur="کس نے شامل کیا">اضيف بواسطة</th>
                                 <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
                             </tr>
                         </thead>
@@ -915,6 +948,32 @@
                         <div class="form-group">
                             <label class="form-label" data-ar="تأكيد كلمة المرور" data-en="Confirm Password" data-ur="پاس ورڈ کی تصدیق کریں">تأكيد كلمة المرور</label>
                             <input type="password" class="form-input" id="supervisorConfirmPassword" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-ar="الصلاحيات" data-en="Permissions" data-ur="اجازتیں">الصلاحيات</label>
+                        <div class="permissions-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="permJobApps" checked>
+                                <label for="permJobApps" data-ar="طلبات التوظيف" data-en="Job Applications" data-ur="ملازمت کی درخواستیں">طلبات التوظيف</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="permAdvances" checked>
+                                <label for="permAdvances" data-ar="طلبات السلفيات" data-en="Advance Requests" data-ur="ایڈوانس کی درخواستیں">طلبات السلفيات</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="permRepresentatives" checked>
+                                <label for="permRepresentatives" data-ar="المندوبين" data-en="Representatives" data-ur="نمائندے">المندوبين</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="permAdmins">
+                                <label for="permAdmins" data-ar="المشرفين" data-en="Supervisors" data-ur="سپروائزر">المشرفين</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="permReports" checked>
+                                <label for="permReports" data-ar="التقارير" data-en="Reports" data-ur="رپورٹس">التقارير</label>
+                            </div>
                         </div>
                     </div>
 
@@ -966,11 +1025,11 @@
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="generateReports()">
+                    <button class="btn btn-primary" onclick="generateReports()" id="generateReportsBtn">
                         <i class="fas fa-chart-line"></i>
                         <span data-ar="تحديث التقارير" data-en="Refresh Reports" data-ur="رپورٹس تازہ کریں">تحديث التقارير</span>
                     </button>
-                    <button class="btn btn-success" onclick="exportReportsToExcel()">
+                    <button class="btn btn-success" onclick="exportReportsToExcel()" id="exportReportsBtn">
                         <i class="fas fa-file-excel"></i>
                         <span data-ar="تصدير التقارير" data-en="Export Reports" data-ur="رپورٹس برآمد کریں">تصدير التقارير</span>
                     </button>
@@ -978,6 +1037,14 @@
                         <i class="fas fa-arrow-right"></i>
                         <span data-ar="العودة للوحة التحكم" data-en="Back to Dashboard" data-ur="ڈیش بورڈ پر واپس جائیں">العودة للوحة التحكم</span>
                     </button>
+                </div>
+
+                <!-- تقرير النشاطات -->
+                <div class="activity-log mt-20">
+                    <h3 data-ar="سجل النشاطات" data-en="Activity Log" data-ur="سرگرمی لاگ">سجل النشاطات</h3>
+                    <div id="activityLogTable">
+                        <!-- سيتم تحميل سجل النشاطات هنا -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -1015,7 +1082,8 @@
             selectedLicenseImage: null,
             hasExpiredResidence: false,
             hasExpiredLicense: false,
-            currentSupervisor: null
+            currentSupervisor: null,
+            loginTime: null
         };
 
         // بيانات الدخول الافتراضية
@@ -1034,7 +1102,8 @@
                 },
                 date: new Date().toISOString().split('T')[0],
                 timestamp: new Date(),
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                addedBy: "النظام"
             }
         ];
 
@@ -1073,9 +1142,14 @@
             // إظهار الصفحة المطلوبة
             document.getElementById(pageId).classList.add('active-page');
             
+            // تحديث الصلاحيات
+            updatePermissions();
+            
             // تحميل البيانات إذا لزم الأمر
             if (pageId === 'supervisorDashboardPage') {
                 loadDashboardStats();
+                loadRecentActivities();
+                updateSessionInfo();
             } else if (pageId === 'jobApplicationsPage') {
                 loadJobApplications();
             } else if (pageId === 'advanceRequestsPage') {
@@ -1086,7 +1160,47 @@
                 loadSupervisors();
             } else if (pageId === 'reportsPage') {
                 generateReports();
+                loadActivityLog();
             }
+        }
+
+        // تحديث معلومات الجلسة
+        function updateSessionInfo() {
+            if (systemState.currentSupervisor) {
+                document.getElementById('sessionUsername').textContent = systemState.currentSupervisor.username;
+                document.getElementById('currentSupervisorName').textContent = systemState.currentSupervisor.fullName;
+                
+                if (systemState.loginTime) {
+                    const loginDate = systemState.loginTime.toLocaleDateString('ar-SA');
+                    const loginTime = systemState.loginTime.toLocaleTimeString('ar-SA');
+                    document.getElementById('sessionLoginDate').textContent = loginDate;
+                    document.getElementById('sessionLoginTime').textContent = loginTime;
+                }
+            }
+        }
+
+        // تحديث الصلاحيات
+        function updatePermissions() {
+            if (!systemState.currentSupervisor) return;
+            
+            const permissions = systemState.currentSupervisor.permissions || {};
+            
+            // إخفاء/إظهار الأزرار بناءً على الصلاحيات
+            document.getElementById('navJobApps').style.display = permissions.jobApps ? 'flex' : 'none';
+            document.getElementById('navAdvances').style.display = permissions.advances ? 'flex' : 'none';
+            document.getElementById('navRepresentatives').style.display = permissions.representatives ? 'flex' : 'none';
+            document.getElementById('navAdmins').style.display = permissions.admins ? 'flex' : 'none';
+            document.getElementById('navReports').style.display = permissions.reports ? 'flex' : 'none';
+            
+            // إخفاء/إظهار أزرار التصدير والإضافة
+            document.getElementById('exportJobAppsBtn').style.display = permissions.jobApps ? 'flex' : 'none';
+            document.getElementById('exportAdvancesBtn').style.display = permissions.advances ? 'flex' : 'none';
+            document.getElementById('addAdvanceBtn').style.display = permissions.advances ? 'flex' : 'none';
+            document.getElementById('exportRepsBtn').style.display = permissions.representatives ? 'flex' : 'none';
+            document.getElementById('addRepBtn').style.display = permissions.representatives ? 'flex' : 'none';
+            document.getElementById('addSupervisorBtn').style.display = permissions.admins ? 'flex' : 'none';
+            document.getElementById('generateReportsBtn').style.display = permissions.reports ? 'flex' : 'none';
+            document.getElementById('exportReportsBtn').style.display = permissions.reports ? 'flex' : 'none';
         }
 
         // دالة تسجيل الدخول
@@ -1103,7 +1217,9 @@
             const defaultSupervisor = defaultSupervisors.find(s => s.username === username && s.password === password);
             if (defaultSupervisor) {
                 systemState.currentSupervisor = defaultSupervisor;
+                systemState.loginTime = new Date();
                 showPage('supervisorDashboardPage');
+                logActivity('تسجيل الدخول', `قام ${defaultSupervisor.fullName} بتسجيل الدخول إلى النظام`);
                 showNotification(getTranslation('✅ تم تسجيل الدخول بنجاح - أحمد الصادق', '✅ Login successful - Ahmed Al-Sadiq', '✅ لاگ ان کامیاب - احمد الصادق'), 'success');
                 return;
             }
@@ -1136,11 +1252,13 @@
                             id: doc.id,
                             ...supervisorData
                         };
+                        systemState.loginTime = new Date();
                     }
                 });
 
                 if (supervisorFound) {
                     showPage('supervisorDashboardPage');
+                    logActivity('تسجيل الدخول', `قام ${systemState.currentSupervisor.fullName} بتسجيل الدخول إلى النظام`);
                     showNotification(getTranslation('✅ تم تسجيل الدخول بنجاح', '✅ Login successful', '✅ لاگ ان کامیاب'), 'success');
                 } else {
                     showNotification(getTranslation('❌ كلمة المرور غير صحيحة', '❌ Invalid password', '❌ غلط پاس ورڈ'), 'error');
@@ -1153,7 +1271,11 @@
 
         // دالة تسجيل الخروج
         function supervisorLogout() {
+            if (systemState.currentSupervisor) {
+                logActivity('تسجيل الخروج', `قام ${systemState.currentSupervisor.fullName} بتسجيل الخروج من النظام`);
+            }
             systemState.currentSupervisor = null;
+            systemState.loginTime = null;
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             showPage('homePage');
@@ -1205,7 +1327,7 @@
                 tableBody.innerHTML = '';
 
                 if (querySnapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
                     return;
                 }
 
@@ -1220,6 +1342,7 @@
                             <td>${data.residenceExpiry || '-'}</td>
                             <td>${data.licenseExpiry || '-'}</td>
                             <td>${data.date || '-'}</td>
+                            <td>${data.addedBy || '-'}</td>
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-warning btn-small" onclick="editApplication('${doc.id}')">
@@ -1257,7 +1380,7 @@
                 tableBody.innerHTML = '';
 
                 if (querySnapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
                     return;
                 }
 
@@ -1276,6 +1399,7 @@
                             <td>${data.amount || '-'} ${getTranslation('ريال', 'SAR', 'ریال')}</td>
                             <td>${data.date || '-'}</td>
                             <td>${statusBadge}</td>
+                            <td>${data.addedBy || '-'}</td>
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-success btn-small" onclick="approveAdvanceRequest('${doc.id}')">
@@ -1310,7 +1434,7 @@
                 tableBody.innerHTML = '';
 
                 if (querySnapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
                     return;
                 }
 
@@ -1325,6 +1449,7 @@
                             <td>${data.vehicleType || '-'}</td>
                             <td>${data.plateNumber || '-'}</td>
                             <td>${data.date || '-'}</td>
+                            <td>${data.addedBy || '-'}</td>
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-danger btn-small" onclick="deleteRepresentative('${doc.id}')">
@@ -1356,7 +1481,7 @@
                 tableBody.innerHTML = '';
 
                 if (querySnapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
                     return;
                 }
 
@@ -1367,6 +1492,7 @@
                             <td>${data.fullName || '-'}</td>
                             <td>${data.username || '-'}</td>
                             <td>${data.date || '-'}</td>
+                            <td>${data.addedBy || '-'}</td>
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-danger btn-small" onclick="deleteSupervisor('${doc.id}')">
@@ -1394,6 +1520,7 @@
                 await window.firestoreFunctions.deleteDoc(
                     window.firestoreFunctions.doc(window.db, "jobApplications", applicationId)
                 );
+                logActivity('حذف طلب توظيف', `قام ${systemState.currentSupervisor.fullName} بحذف طلب توظيف`);
                 showNotification(getTranslation('✅ تم حذف الطلب بنجاح', '✅ Application deleted successfully', '✅ درخواست کامیابی سے حذف ہو گئی'), 'success');
                 loadJobApplications();
             } catch (error) {
@@ -1411,6 +1538,7 @@
                 await window.firestoreFunctions.deleteDoc(
                     window.firestoreFunctions.doc(window.db, "advanceRequests", advanceId)
                 );
+                logActivity('حذف طلب سلفية', `قام ${systemState.currentSupervisor.fullName} بحذف طلب سلفية`);
                 showNotification(getTranslation('✅ تم حذف طلب السلفية بنجاح', '✅ Advance request deleted successfully', '✅ ایڈوانس کی درخواست کامیابی سے حذف ہو گئی'), 'success');
                 loadAdvanceRequests();
             } catch (error) {
@@ -1427,6 +1555,7 @@
                 await window.firestoreFunctions.deleteDoc(
                     window.firestoreFunctions.doc(window.db, "representatives", representativeId)
                 );
+                logActivity('حذف مندوب', `قام ${systemState.currentSupervisor.fullName} بحذف مندوب`);
                 showNotification(getTranslation('✅ تم حذف المندوب بنجاح', '✅ Representative deleted successfully', '✅ نمائندہ کامیابی سے حذف ہو گیا'), 'success');
                 loadRepresentatives();
             } catch (error) {
@@ -1443,6 +1572,7 @@
                 await window.firestoreFunctions.deleteDoc(
                     window.firestoreFunctions.doc(window.db, "supervisors", supervisorId)
                 );
+                logActivity('حذف مشرف', `قام ${systemState.currentSupervisor.fullName} بحذف مشرف`);
                 showNotification(getTranslation('✅ تم حذف المشرف بنجاح', '✅ Supervisor deleted successfully', '✅ سپروائزر کامیابی سے حذف ہو گیا'), 'success');
                 loadSupervisors();
             } catch (error) {
@@ -1513,7 +1643,8 @@
                     vehiclePlate: document.getElementById('editVehiclePlate').value.trim(),
                     residenceExpiry: document.getElementById('editResidenceExpiry').value,
                     licenseExpiry: document.getElementById('editLicenseExpiry').value,
-                    updatedAt: new Date().toISOString()
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: systemState.currentSupervisor.fullName
                 };
 
                 if (!formData.fullName || !formData.phoneNumber || !formData.residenceExpiry || !formData.licenseExpiry || !formData.vehicleType || !formData.vehiclePlate) {
@@ -1528,6 +1659,7 @@
                     formData
                 );
                 
+                logActivity('تعديل طلب توظيف', `قام ${systemState.currentSupervisor.fullName} بتعديل طلب توظيف`);
                 showNotification(getTranslation('✅ تم تحديث الطلب بنجاح', '✅ Application updated successfully', '✅ درخواست کامیابی سے اپ ڈیٹ ہو گئی'), 'success');
                 
                 document.getElementById('editJobForm').reset();
@@ -1551,8 +1683,13 @@
             try {
                 await window.firestoreFunctions.updateDoc(
                     window.firestoreFunctions.doc(window.db, "advanceRequests", advanceId),
-                    { status: "approved" }
+                    { 
+                        status: "approved",
+                        approvedBy: systemState.currentSupervisor.fullName,
+                        approvedAt: new Date().toISOString()
+                    }
                 );
+                logActivity('موافقة على طلب سلفية', `قام ${systemState.currentSupervisor.fullName} بالموافقة على طلب سلفية`);
                 showNotification(getTranslation('✅ تمت الموافقة على طلب السلفية', '✅ Advance request approved', '✅ ایڈوانس کی درخواست منظور ہو گئی'), 'success');
                 loadAdvanceRequests();
             } catch (error) {
@@ -1586,7 +1723,8 @@
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date(),
                     status: 'pending',
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    addedBy: systemState.currentSupervisor ? systemState.currentSupervisor.fullName : 'الزائر'
                 };
 
                 if (!formData.fullName || !formData.phoneNumber || !formData.residenceExpiry || !formData.licenseExpiry || !formData.vehicleType || !formData.vehiclePlate) {
@@ -1600,6 +1738,10 @@
                     window.firestoreFunctions.collection(window.db, "jobApplications"), 
                     formData
                 );
+                
+                if (systemState.currentSupervisor) {
+                    logActivity('إضافة طلب توظيف', `قام ${systemState.currentSupervisor.fullName} بإضافة طلب توظيف جديد`);
+                }
                 
                 showNotification(getTranslation('✅ تم إرسال طلب التوظيف بنجاح', '✅ Job application submitted successfully', '✅ ملازمت کی درخواست کامیابی سے جمع ہو گئی'), 'success');
                 
@@ -1639,7 +1781,8 @@
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date(),
                     status: 'pending',
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    addedBy: systemState.currentSupervisor.fullName
                 };
 
                 if (!formData.employeeName || !formData.project || !formData.residenceNumber || !formData.vehicleType || !formData.amount || !formData.vehiclePlate) {
@@ -1654,6 +1797,7 @@
                     formData
                 );
                 
+                logActivity('إضافة طلب سلفية', `قام ${systemState.currentSupervisor.fullName} بإضافة طلب سلفية جديد`);
                 showNotification(getTranslation('✅ تم حفظ طلب السلفية بنجاح', '✅ Advance request saved successfully', '✅ ایڈوانس کی درخواست کامیابی سے محفوظ ہو گئی'), 'success');
                 
                 document.getElementById('advanceRequestForm').reset();
@@ -1692,7 +1836,8 @@
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date(),
                     status: 'active',
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    addedBy: systemState.currentSupervisor.fullName
                 };
 
                 if (!formData.fullName || !formData.idNumber || !formData.phoneNumber || !formData.region || !formData.vehicleType || !formData.plateNumber) {
@@ -1707,6 +1852,7 @@
                     formData
                 );
                 
+                logActivity('إضافة مندوب', `قام ${systemState.currentSupervisor.fullName} بإضافة مندوب جديد`);
                 showNotification(getTranslation('✅ تم حفظ بيانات المندوب بنجاح', '✅ Representative data saved successfully', '✅ نمائندہ کا ڈیٹا کامیابی سے محفوظ ہو گیا'), 'success');
                 
                 document.getElementById('representativeForm').reset();
@@ -1754,20 +1900,23 @@
                     return;
                 }
 
+                const permissions = {
+                    jobApps: document.getElementById('permJobApps').checked,
+                    advances: document.getElementById('permAdvances').checked,
+                    representatives: document.getElementById('permRepresentatives').checked,
+                    admins: document.getElementById('permAdmins').checked,
+                    reports: document.getElementById('permReports').checked
+                };
+
                 const formData = {
                     fullName: fullName,
                     username: username,
                     password: password,
-                    permissions: {
-                        jobApps: true,
-                        advances: true,
-                        representatives: true,
-                        admins: true,
-                        reports: true
-                    },
+                    permissions: permissions,
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date(),
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    addedBy: systemState.currentSupervisor.fullName
                 };
 
                 await window.firestoreFunctions.addDoc(
@@ -1775,6 +1924,7 @@
                     formData
                 );
                 
+                logActivity('إضافة مشرف', `قام ${systemState.currentSupervisor.fullName} بإضافة مشرف جديد: ${fullName}`);
                 showNotification(getTranslation('✅ تم حفظ بيانات المشرف بنجاح', '✅ Supervisor data saved successfully', '✅ سپروائزر کا ڈیٹا کامیابی سے محفوظ ہو گیا'), 'success');
                 
                 document.getElementById('supervisorForm').reset();
@@ -1794,6 +1944,7 @@
                 const table = document.getElementById('jobApplicationsTable');
                 const workbook = XLSX.utils.table_to_book(table, {sheet: "طلبات التوظيف"});
                 XLSX.writeFile(workbook, "job_applications.xlsx");
+                logActivity('تصدير بيانات', `قام ${systemState.currentSupervisor.fullName} بتصدير بيانات طلبات التوظيف`);
                 showNotification(getTranslation('✅ تم تحميل ملف Excel بنجاح', '✅ Excel file downloaded successfully', '✅ ایکسل فائل کامیابی سے ڈاؤن لوڈ ہو گئی'), 'success');
             } catch (error) {
                 console.error('Error exporting to Excel:', error);
@@ -1806,6 +1957,7 @@
                 const table = document.getElementById('advanceRequestsTable');
                 const workbook = XLSX.utils.table_to_book(table, {sheet: "طلبات السلفيات"});
                 XLSX.writeFile(workbook, "advance_requests.xlsx");
+                logActivity('تصدير بيانات', `قام ${systemState.currentSupervisor.fullName} بتصدير بيانات طلبات السلفيات`);
                 showNotification(getTranslation('✅ تم تحميل ملف Excel بنجاح', '✅ Excel file downloaded successfully', '✅ ایکسل فائل کامیابی سے ڈاؤن لوڈ ہو گئی'), 'success');
             } catch (error) {
                 console.error('Error exporting to Excel:', error);
@@ -1817,6 +1969,7 @@
                 const table = document.getElementById('representativesTable');
                 const workbook = XLSX.utils.table_to_book(table, {sheet: "المندوبين"});
                 XLSX.writeFile(workbook, "representatives.xlsx");
+                logActivity('تصدير بيانات', `قام ${systemState.currentSupervisor.fullName} بتصدير بيانات المندوبين`);
                 showNotification(getTranslation('✅ تم تحميل ملف Excel بنجاح', '✅ Excel file downloaded successfully', '✅ ایکسل فائل کامیابی سے ڈاؤن لوڈ ہو گئی'), 'success');
             } catch (error) {
                 console.error('Error exporting to Excel:', error);
@@ -1838,6 +1991,7 @@
                 XLSX.utils.book_append_sheet(wb, ws, "التقارير");
                 XLSX.writeFile(wb, "reports.xlsx");
                 
+                logActivity('تصدير تقارير', `قام ${systemState.currentSupervisor.fullName} بتصدير التقارير`);
                 showNotification(getTranslation('✅ تم تصدير التقارير بنجاح', '✅ Reports exported successfully', '✅ رپورٹس کامیابی سے برآمد ہو گئیں'), 'success');
             } catch (error) {
                 console.error('Error exporting reports:', error);
@@ -1882,6 +2036,106 @@
                 
             } catch (error) {
                 console.error('Error generating reports:', error);
+            }
+        }
+
+        // دوال سجل النشاطات
+        async function logActivity(action, description) {
+            if (!systemState.firebaseReady || !systemState.currentSupervisor) return;
+
+            try {
+                const activityData = {
+                    action: action,
+                    description: description,
+                    user: systemState.currentSupervisor.fullName,
+                    timestamp: new Date(),
+                    date: new Date().toISOString().split('T')[0],
+                    time: new Date().toLocaleTimeString('ar-SA')
+                };
+
+                await window.firestoreFunctions.addDoc(
+                    window.firestoreFunctions.collection(window.db, "activities"), 
+                    activityData
+                );
+            } catch (error) {
+                console.error('Error logging activity:', error);
+            }
+        }
+
+        async function loadRecentActivities() {
+            if (!systemState.firebaseReady) return;
+
+            try {
+                const q = window.firestoreFunctions.query(
+                    window.firestoreFunctions.collection(window.db, "activities"),
+                    window.firestoreFunctions.orderBy("timestamp", "desc"),
+                    window.firestoreFunctions.limit(5)
+                );
+                
+                const querySnapshot = await window.firestoreFunctions.getDocs(q);
+                const activitiesContainer = document.getElementById('recentActivities');
+                activitiesContainer.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    activitiesContainer.innerHTML = '<p class="text-center">' + getTranslation('لا توجد نشاطات حديثة', 'No recent activities', 'کوئی حالیہ سرگرمی نہیں') + '</p>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const activityItem = `
+                        <div class="activity-item">
+                            <strong>${data.action}</strong> - ${data.description}
+                            <br><small>${data.time} - ${data.date}</small>
+                        </div>
+                    `;
+                    activitiesContainer.innerHTML += activityItem;
+                });
+
+            } catch (error) {
+                console.error('Error loading recent activities:', error);
+            }
+        }
+
+        async function loadActivityLog() {
+            if (!systemState.firebaseReady) return;
+
+            try {
+                const q = window.firestoreFunctions.query(
+                    window.firestoreFunctions.collection(window.db, "activities"),
+                    window.firestoreFunctions.orderBy("timestamp", "desc"),
+                    window.firestoreFunctions.limit(20)
+                );
+                
+                const querySnapshot = await window.firestoreFunctions.getDocs(q);
+                const activityLogContainer = document.getElementById('activityLogTable');
+                activityLogContainer.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    activityLogContainer.innerHTML = '<p class="text-center">' + getTranslation('لا توجد نشاطات', 'No activities', 'کوئی سرگرمی نہیں') + '</p>';
+                    return;
+                }
+
+                let logHTML = '<table class="data-table"><thead><tr><th>النشاط</th><th>الوصف</th><th>المستخدم</th><th>التاريخ</th><th>الوقت</th></tr></thead><tbody>';
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    logHTML += `
+                        <tr>
+                            <td>${data.action}</td>
+                            <td>${data.description}</td>
+                            <td>${data.user}</td>
+                            <td>${data.date}</td>
+                            <td>${data.time}</td>
+                        </tr>
+                    `;
+                });
+                
+                logHTML += '</tbody></table>';
+                activityLogContainer.innerHTML = logHTML;
+
+            } catch (error) {
+                console.error('Error loading activity log:', error);
             }
         }
 
