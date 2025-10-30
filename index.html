@@ -138,6 +138,7 @@
         .btn-success { background: var(--success); color: white; }
         .btn-warning { background: var(--warning); color: white; }
         .btn-danger { background: var(--danger); color: white; }
+        .btn-info { background: var(--accent); color: white; }
         .btn-full { width: 100%; }
         .btn-group { display: flex; gap: 12px; margin-top: 25px; flex-wrap: wrap; }
         .btn-small { padding: 10px 18px; font-size: 15px; }
@@ -510,6 +511,77 @@
             </div>
         </div>
 
+        <!-- صفحة تعديل طلب التوظيف -->
+        <div id="editApplicationPage" class="page">
+            <div class="header">
+                <h1 class="main-title" data-ar="تعديل طلب التوظيف" data-en="Edit Job Application" data-ur="ملازمت کی درخواست میں ترمیم کریں">تعديل طلب التوظيف</h1>
+            </div>
+
+            <div class="form-container">
+                <h2 class="form-title" data-ar="تعديل بيانات طلب التوظيف" data-en="Edit Job Application Data" data-ur="ملازمت کی درخواست کے ڈیٹا میں ترمیم کریں">تعديل بيانات طلب التوظيف</h2>
+                <form id="editJobForm">
+                    <input type="hidden" id="editApplicationId">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="الاسم الكامل" data-en="Full Name" data-ur="پورا نام">الاسم الكامل</label>
+                            <input type="text" class="form-input" id="editFullName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="رقم الجوال" data-en="Phone Number" data-ur="فون نمبر">رقم الجوال</label>
+                            <input type="tel" class="form-input" id="editPhoneNumber" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</label>
+                            <select class="form-select" id="editVehicleType" required onchange="toggleEditLicensePlateField()">
+                                <option value="" data-ar="اختر نوع المركبة" data-en="Select Vehicle Type" data-ur="گاڑی کی قسم منتخب کریں">اختر نوع المركبة</option>
+                                <option value="دباب" data-ar="دباب" data-en="Motorcycle" data-ur="موٹرسائیکل">دباب</option>
+                                <option value="سيارة" data-ar="سيارة" data-en="Car" data-ur="کار">سيارة</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="رقم لوحة المركبة" data-en="Vehicle Plate Number" data-ur="گاڑی کی پلیٹ نمبر">رقم لوحة المركبة</label>
+                            <input type="text" class="form-input" id="editVehiclePlate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="تاريخ انتهاء الإقامة" data-en="Residence Expiry Date" data-ur="رہائشی کی میعاد ختم ہونے کی تاریخ">تاريخ انتهاء الإقامة</label>
+                            <input type="date" class="form-input" id="editResidenceExpiry" required onchange="checkEditExpiry(this, 'residence')">
+                            <div class="expiry-info" id="editResidenceInfo" data-ar="⚠️ يمكن تقديم الطلب حتى مع انتهاء الإقامة" data-en="⚠️ Application can be submitted even with expired residence" data-ur="⚠️ درخواست رہائشی ختم ہونے کے باوجود بھی جمع کرائی جا سکتی ہے">⚠️ يمكن تقديم الطلب حتى مع انتهاء الإقامة</div>
+                            <div class="expiry-warning" id="editResidenceWarning" data-ar="⚠️ إقامتك منتهية - يمكنك تقديم الطلب" data-en="⚠️ Your residence is expired - You can still submit the application" data-ur="⚠️ آپ کی رہائش ختم ہو گئی ہے - آپ پھر بھی درخواست جمع کروا سکتے ہیں">⚠️ إقامتك منتهية - يمكنك تقديم الطلب</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="تاريخ انتهاء الرخصة" data-en="License Expiry Date" data-ur="لائسنس کی میعاد ختم ہونے کی تاریخ">تاريخ انتهاء الرخصة</label>
+                            <input type="date" class="form-input" id="editLicenseExpiry" required onchange="checkEditExpiry(this, 'license')">
+                            <div class="expiry-warning" id="editLicenseWarning" data-ar="❌ رخصتك منتهية - لا يمكن تقديم الطلب" data-en="❌ Your license is expired - Cannot submit application" data-ur="❌ آپ کا لائسنس ختم ہو گیا ہے - درخواست جمع نہیں کرائی جا سکتی">❌ رخصتك منتهية - لا يمكن تقديم الطلب</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary btn-full" id="updateBtn">
+                            <i class="fas fa-save"></i>
+                            <span data-ar="حفظ التعديلات" data-en="Save Changes" data-ur="تبدیلیاں محفوظ کریں">حفظ التعديلات</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-full" onclick="showPage('jobApplicationsPage')">
+                        <i class="fas fa-arrow-right"></i>
+                        <span data-ar="العودة لطلبات التوظيف" data-en="Back to Job Applications" data-ur="ملازمت کی درخواستوں پر واپس جائیں">العودة لطلبات التوظيف</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- صفحة طلبات السلفيات -->
         <div id="advanceRequestsPage" class="page">
             <div class="header">
@@ -720,7 +792,19 @@
 
                         <div class="form-group">
                             <label class="form-label" data-ar="المنطقة" data-en="Region" data-ur="علاقہ">المنطقة</label>
-                            <input type="text" class="form-input" id="representativeRegion" required>
+                            <select class="form-select" id="representativeRegion" required>
+                                <option value="" data-ar="اختر المنطقة" data-en="Select Region" data-ur="علاقہ منتخب کریں">اختر المنطقة</option>
+                                <option value="الرياض" data-ar="الرياض" data-en="Riyadh" data-ur="رياض">الرياض</option>
+                                <option value="جدة" data-ar="جدة" data-en="Jeddah" data-ur="جدہ">جدة</option>
+                                <option value="الدمام" data-ar="الدمام" data-en="Dammam" data-ur="دمام">الدمام</option>
+                                <option value="مكة المكرمة" data-ar="مكة المكرمة" data-en="Makkah" data-ur="مکہ المکرمہ">مكة المكرمة</option>
+                                <option value="المدينة المنورة" data-ar="المدينة المنورة" data-en="Madinah" data-ur="مدینہ منورہ">المدينة المنورة</option>
+                                <option value="الخبر" data-ar="الخبر" data-en="Khobar" data-ur="خبر">الخبر</option>
+                                <option value="الطائف" data-ar="الطائف" data-en="Taif" data-ur="طائف">الطائف</option>
+                                <option value="تبوك" data-ar="تبوك" data-en="Tabuk" data-ur="تبوک">تبوك</option>
+                                <option value="أبها" data-ar="أبها" data-en="Abha" data-ur="ابہا">أبها</option>
+                                <option value="جازان" data-ar="جازان" data-en="Jazan" data-ur="جازان">جازان</option>
+                            </select>
                         </div>
                     </div>
 
@@ -797,6 +881,56 @@
                             <!-- البيانات سيتم تحميلها هنا -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة إضافة مشرف -->
+        <div id="addSupervisorPage" class="page">
+            <div class="header">
+                <h1 class="main-title" data-ar="إضافة مشرف جديد" data-en="Add New Supervisor" data-ur="نیا سپروائزر شامل کریں">إضافة مشرف جديد</h1>
+            </div>
+
+            <div class="form-container">
+                <h2 class="form-title" data-ar="بيانات المشرف الجديد" data-en="New Supervisor Data" data-ur="نئے سپروائزر کا ڈیٹا">بيانات المشرف الجديد</h2>
+                <form id="supervisorForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="الاسم الكامل" data-en="Full Name" data-ur="پورا نام">الاسم الكامل</label>
+                            <input type="text" class="form-input" id="supervisorFullName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="اسم المستخدم" data-en="Username" data-ur="صارف نام">اسم المستخدم</label>
+                            <input type="text" class="form-input" id="supervisorUsername" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="كلمة المرور" data-en="Password" data-ur="پاس ورڈ">كلمة المرور</label>
+                            <input type="password" class="form-input" id="supervisorPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="تأكيد كلمة المرور" data-en="Confirm Password" data-ur="پاس ورڈ کی تصدیق کریں">تأكيد كلمة المرور</label>
+                            <input type="password" class="form-input" id="supervisorConfirmPassword" required>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary btn-full" id="submitSupervisorBtn">
+                            <i class="fas fa-save"></i>
+                            <span data-ar="حفظ بيانات المشرف" data-en="Save Supervisor Data" data-ur="سپروائزر کا ڈیٹا محفوظ کریں">حفظ بيانات المشرف</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-full" onclick="showPage('adminsPage')">
+                        <i class="fas fa-arrow-right"></i>
+                        <span data-ar="العودة للمشرفين" data-en="Back to Supervisors" data-ur="سپروائزر پر واپس جائیں">العودة للمشرفين</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1088,6 +1222,9 @@
                             <td>${data.date || '-'}</td>
                             <td>
                                 <div class="btn-group">
+                                    <button class="btn btn-warning btn-small" onclick="editApplication('${doc.id}')">
+                                        <i class="fas fa-edit"></i> ${getTranslation('تعديل', 'Edit', 'ترمیم')}
+                                    </button>
                                     <button class="btn btn-danger btn-small" onclick="deleteApplication('${doc.id}')">
                                         <i class="fas fa-trash"></i> ${getTranslation('حذف', 'Delete', 'حذف کریں')}
                                     </button>
@@ -1313,6 +1450,98 @@
             }
         }
 
+        // دوال التعديل
+        async function editApplication(applicationId) {
+            if (!systemState.firebaseReady) {
+                showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
+                return;
+            }
+
+            try {
+                const docRef = window.firestoreFunctions.doc(window.db, "jobApplications", applicationId);
+                const docSnap = await window.firestoreFunctions.getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // تعبئة الحقول في نموذج التعديل
+                    document.getElementById('editApplicationId').value = applicationId;
+                    document.getElementById('editFullName').value = data.fullName || '';
+                    document.getElementById('editPhoneNumber').value = data.phoneNumber || '';
+                    document.getElementById('editVehicleType').value = data.vehicleType || '';
+                    document.getElementById('editVehiclePlate').value = data.vehiclePlate || '';
+                    document.getElementById('editResidenceExpiry').value = data.residenceExpiry || '';
+                    document.getElementById('editLicenseExpiry').value = data.licenseExpiry || '';
+                    
+                    // التحقق من صلاحية التواريخ
+                    checkEditExpiry(document.getElementById('editResidenceExpiry'), 'residence');
+                    checkEditExpiry(document.getElementById('editLicenseExpiry'), 'license');
+                    
+                    // الانتقال إلى صفحة التعديل
+                    showPage('editApplicationPage');
+                    
+                    showNotification(getTranslation('✅ تم تحميل بيانات الطلب للتعديل', '✅ Application data loaded for editing', '✅ ترمیم کے لیے درخواست کا ڈیٹا لوڈ ہو گیا'), 'success');
+                } else {
+                    showNotification(getTranslation('❌ لم يتم العثور على الطلب', '❌ Application not found', '❌ درخواست نہیں ملی'), 'error');
+                }
+            } catch (error) {
+                console.error('Error loading application for editing:', error);
+                showNotification(getTranslation('❌ حدث خطأ أثناء تحميل بيانات الطلب', '❌ Error loading application data', '❌ درخواست کا ڈیٹا لوڈ کرنے میں خرابی'), 'error');
+            }
+        }
+
+        async function updateJobApplication(event) {
+            event.preventDefault();
+            
+            if (!systemState.firebaseReady) {
+                showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
+                return;
+            }
+
+            const updateBtn = document.getElementById('updateBtn');
+            const originalText = updateBtn.innerHTML;
+            
+            try {
+                updateBtn.innerHTML = '<div class="loading"></div> ' + getTranslation('جاري التحديث...', 'Updating...', 'اپ ڈیٹ ہو رہا ہے...');
+                updateBtn.disabled = true;
+
+                const applicationId = document.getElementById('editApplicationId').value;
+                const formData = {
+                    fullName: document.getElementById('editFullName').value.trim(),
+                    phoneNumber: document.getElementById('editPhoneNumber').value.trim(),
+                    vehicleType: document.getElementById('editVehicleType').value,
+                    vehiclePlate: document.getElementById('editVehiclePlate').value.trim(),
+                    residenceExpiry: document.getElementById('editResidenceExpiry').value,
+                    licenseExpiry: document.getElementById('editLicenseExpiry').value,
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (!formData.fullName || !formData.phoneNumber || !formData.residenceExpiry || !formData.licenseExpiry || !formData.vehicleType || !formData.vehiclePlate) {
+                    showNotification(getTranslation('❌ يرجى ملء جميع الحقول المطلوبة', '❌ Please fill all required fields', '❌ براہ کرم تمام ضروری فیلڈز کو پُر کریں'), 'error');
+                    updateBtn.innerHTML = originalText;
+                    updateBtn.disabled = false;
+                    return;
+                }
+
+                await window.firestoreFunctions.updateDoc(
+                    window.firestoreFunctions.doc(window.db, "jobApplications", applicationId),
+                    formData
+                );
+                
+                showNotification(getTranslation('✅ تم تحديث الطلب بنجاح', '✅ Application updated successfully', '✅ درخواست کامیابی سے اپ ڈیٹ ہو گئی'), 'success');
+                
+                document.getElementById('editJobForm').reset();
+                showPage('jobApplicationsPage');
+                loadJobApplications();
+                
+            } catch (error) {
+                console.error('Error updating application:', error);
+                showNotification(getTranslation('❌ حدث خطأ أثناء تحديث الطلب', '❌ Error updating application', '❌ درخواست اپ ڈیٹ کرنے میں خرابی'), 'error');
+                updateBtn.innerHTML = originalText;
+                updateBtn.disabled = false;
+            }
+        }
+
         // دوال الموافقة
         async function approveAdvanceRequest(advanceId) {
             if (!confirm(getTranslation('هل تريد الموافقة على طلب السلفية هذا؟', 'Do you want to approve this advance request?', 'کیا آپ اس ایڈوانس کی درخواست کو منظور کرنا چاہتے ہیں؟'))) {
@@ -1457,7 +1686,7 @@
                     fullName: document.getElementById('representativeName').value.trim(),
                     idNumber: document.getElementById('representativeId').value.trim(),
                     phoneNumber: document.getElementById('representativePhone').value.trim(),
-                    region: document.getElementById('representativeRegion').value.trim(),
+                    region: document.getElementById('representativeRegion').value,
                     vehicleType: document.getElementById('representativeVehicleType').value,
                     plateNumber: document.getElementById('representativePlate').value.trim(),
                     date: new Date().toISOString().split('T')[0],
@@ -1486,6 +1715,74 @@
             } catch (error) {
                 console.error('Error submitting representative form:', error);
                 showNotification(getTranslation('❌ حدث خطأ أثناء حفظ بيانات المندوب', '❌ Error saving representative data', '❌ نمائندہ کا ڈیٹا محفوظ کرنے میں خرابی'), 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function submitSupervisorForm(event) {
+            event.preventDefault();
+            
+            if (!systemState.firebaseReady) {
+                showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitSupervisorBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.innerHTML = '<div class="loading"></div> ' + getTranslation('جاري الحفظ...', 'Saving...', 'محفوظ ہو رہا ہے...');
+                submitBtn.disabled = true;
+
+                const fullName = document.getElementById('supervisorFullName').value.trim();
+                const username = document.getElementById('supervisorUsername').value.trim();
+                const password = document.getElementById('supervisorPassword').value;
+                const confirmPassword = document.getElementById('supervisorConfirmPassword').value;
+
+                if (!fullName || !username || !password || !confirmPassword) {
+                    showNotification(getTranslation('❌ يرجى ملء جميع الحقول المطلوبة', '❌ Please fill all required fields', '❌ براہ کرم تمام ضروری فیلڈز کو پُر کریں'), 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showNotification(getTranslation('❌ كلمة المرور غير متطابقة', '❌ Passwords do not match', '❌ پاس ورڈ مماثل نہیں ہیں'), 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                const formData = {
+                    fullName: fullName,
+                    username: username,
+                    password: password,
+                    permissions: {
+                        jobApps: true,
+                        advances: true,
+                        representatives: true,
+                        admins: true,
+                        reports: true
+                    },
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: new Date(),
+                    createdAt: new Date().toISOString()
+                };
+
+                await window.firestoreFunctions.addDoc(
+                    window.firestoreFunctions.collection(window.db, "supervisors"), 
+                    formData
+                );
+                
+                showNotification(getTranslation('✅ تم حفظ بيانات المشرف بنجاح', '✅ Supervisor data saved successfully', '✅ سپروائزر کا ڈیٹا کامیابی سے محفوظ ہو گیا'), 'success');
+                
+                document.getElementById('supervisorForm').reset();
+                showPage('adminsPage');
+                
+            } catch (error) {
+                console.error('Error submitting supervisor form:', error);
+                showNotification(getTranslation('❌ حدث خطأ أثناء حفظ بيانات المشرف', '❌ Error saving supervisor data', '❌ سپروائزر کا ڈیٹا محفوظ کرنے میں خرابی'), 'error');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
@@ -1602,11 +1899,50 @@
             }
         }
 
+        function toggleEditLicensePlateField() {
+            const vehicleType = document.getElementById('editVehicleType').value;
+            const vehiclePlate = document.getElementById('editVehiclePlate');
+            
+            if (vehicleType === 'دباب') {
+                vehiclePlate.placeholder = getTranslation('أدخل رقم لوحة الدباب', 'Enter motorcycle plate number', 'موٹرسائیکل پلیٹ نمبر درج کریں');
+            } else if (vehicleType === 'سيارة') {
+                vehiclePlate.placeholder = getTranslation('أدخل رقم لوحة السيارة', 'Enter car plate number', 'کار پلیٹ نمبر درج کریں');
+            } else {
+                vehiclePlate.placeholder = getTranslation('رقم لوحة المركبة', 'Vehicle plate number', 'گاڑی کی پلیٹ نمبر');
+            }
+        }
+
         function checkExpiry(input, type) {
             const expiryDate = new Date(input.value);
             const today = new Date();
             const warningElement = document.getElementById(type + 'Warning');
             const infoElement = document.getElementById(type + 'Info');
+            
+            if (expiryDate < today) {
+                if (type === 'residence') {
+                    warningElement.style.display = 'block';
+                    infoElement.style.display = 'none';
+                    systemState.hasExpiredResidence = true;
+                } else {
+                    warningElement.style.display = 'block';
+                    systemState.hasExpiredLicense = true;
+                }
+            } else {
+                warningElement.style.display = 'none';
+                if (type === 'residence') {
+                    infoElement.style.display = 'block';
+                    systemState.hasExpiredResidence = false;
+                } else {
+                    systemState.hasExpiredLicense = false;
+                }
+            }
+        }
+
+        function checkEditExpiry(input, type) {
+            const expiryDate = new Date(input.value);
+            const today = new Date();
+            const warningElement = document.getElementById('edit' + type.charAt(0).toUpperCase() + type.slice(1) + 'Warning');
+            const infoElement = document.getElementById('edit' + type.charAt(0).toUpperCase() + type.slice(1) + 'Info');
             
             if (expiryDate < today) {
                 if (type === 'residence') {
@@ -1747,8 +2083,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             // إضافة مستمعي الأحداث للنماذج
             document.getElementById('jobForm').addEventListener('submit', submitJobApplication);
+            document.getElementById('editJobForm').addEventListener('submit', updateJobApplication);
             document.getElementById('advanceRequestForm').addEventListener('submit', submitAdvanceRequest);
             document.getElementById('representativeForm').addEventListener('submit', submitRepresentativeForm);
+            document.getElementById('supervisorForm').addEventListener('submit', submitSupervisorForm);
             
             updateLanguage('ar');
             showNotification(getTranslation('مرحباً بك في نظام توظيف الزهراني', 'Welcome to Al-Zahrani Employment System', 'الزہرانی ملازمت کے نظام میں خوش آمدید'), 'info');
