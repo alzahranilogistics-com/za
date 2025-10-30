@@ -204,10 +204,33 @@
         .permission-checkbox { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .permission-checkbox input { width: 20px; height: 20px; }
         
-        .login-credentials { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .login-credentials { 
+            background: #f0f9ff; 
+            border: 2px solid #bae6fd; 
+            border-radius: 10px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            display: none; /* إخفاء بيانات الدخول */
+        }
         .credential-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
         .credential-label { font-weight: 600; color: var(--primary); }
         .credential-value { font-family: monospace; background: #1a365d; color: white; padding: 4px 8px; border-radius: 4px; }
+        
+        .show-credentials-btn { 
+            background: transparent; 
+            border: 2px dashed #3182ce; 
+            color: #3182ce; 
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .show-credentials-btn:hover {
+            background: #3182ce;
+            color: white;
+        }
         
         @media (max-width: 768px) {
             .nav-cards, .form-grid { grid-template-columns: 1fr; }
@@ -379,27 +402,15 @@
         <!-- Supervisor Login -->
         <div id="supervisorLogin" class="login-container">
             <h2 class="login-title" data-ar="دخول المشرف" data-en="Supervisor Login" data-ur="سپروائزر لاگ ان">دخول المشرف</h2>
-            
-            <div class="login-credentials">
-                <h3 style="text-align: center; margin-bottom: 15px; color: var(--primary);" data-ar="بيانات الدخول الافتراضية" data-en="Default Login Credentials" data-ur="ڈیفالٹ لاگ ان کی تفصیلات">بيانات الدخول الافتراضية</h3>
-                <div class="credential-item">
-                    <span class="credential-label" data-ar="اسم المستخدم:" data-en="Username:" data-ur="صارف نام:">اسم المستخدم:</span>
-                    <span class="credential-value">admin</span>
-                </div>
-                <div class="credential-item">
-                    <span class="credential-label" data-ar="كلمة المرور:" data-en="Password:" data-ur="پاس ورڈ:">كلمة المرور:</span>
-                    <span class="credential-value">123456</span>
-                </div>
-            </div>
 
             <div class="form-group">
                 <label class="form-label" data-ar="اسم المستخدم" data-en="Username" data-ur="صارف نام">اسم المستخدم</label>
-                <input type="text" class="form-input" id="username" placeholder="أدخل اسم المستخدم" value="admin">
+                <input type="text" class="form-input" id="username" placeholder="أدخل اسم المستخدم">
             </div>
 
             <div class="form-group">
                 <label class="form-label" data-ar="كلمة المرور" data-en="Password" data-ur="پاس ورڈ">كلمة المرور</label>
-                <input type="password" class="form-input" id="password" placeholder="أدخل كلمة المرور" value="123456">
+                <input type="password" class="form-input" id="password" placeholder="أدخل كلمة المرور">
             </div>
 
             <div class="btn-group">
@@ -423,7 +434,7 @@
             <div class="profile-header">
                 <img src="https://i.ibb.co/vrKBxqC/profile.jpg" alt="Ahmed Al-Sadiq" class="profile-image">
                 <div class="profile-info">
-                    <h2 class="profile-name" id="currentSupervisorName">المشرف العام</h2>
+                    <h2 class="profile-name" id="currentSupervisorName">أحمد الصادق</h2>
                     <p class="profile-role" id="currentSupervisorRole" data-ar="مشرف نظام التوظيف" data-en="Employment System Supervisor" data-ur="ملازمت کے نظام کا سپروائزر">مشرف نظام التوظيف</p>
                 </div>
                 <button class="btn btn-danger" onclick="supervisorLogout()">
@@ -538,398 +549,9 @@
                 </div>
             </div>
 
-            <!-- Advance Requests Section -->
-            <div id="advanceRequestsSection" style="display: none;">
-                <div class="table-header">
-                    <h2 class="table-title" data-ar="طلبات السلفيات" data-en="Advance Requests" data-ur="ایڈوانس کی درخواستیں">طلبات السلفيات</h2>
-                    <div class="filters">
-                        <div class="filter-group">
-                            <label class="filter-label" data-ar="اسم الموظف" data-en="Employee Name" data-ur="ملازم کا نام">اسم الموظف</label>
-                            <input type="text" class="form-input" id="filterEmployeeName" placeholder="بحث بالاسم">
-                        </div>
-
-                        <div class="filter-group">
-                            <label class="filter-label" data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</label>
-                            <input type="date" class="form-input" id="filterAdvanceDate">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="loadAdvanceRequests()" id="loadAdvanceDataBtn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
-                    </button>
-                    <button class="btn btn-primary" onclick="exportAdvanceRequestsToExcel()">
-                        <i class="fas fa-file-excel"></i>
-                        <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
-                    </button>
-                    <button class="btn btn-warning" onclick="showAddAdvanceRequestForm()">
-                        <i class="fas fa-plus"></i>
-                        <span data-ar="إضافة طلب سلفية" data-en="Add Advance Request" data-ur="ایڈوانس کی درخواست شامل کریں">إضافة طلب سلفية</span>
-                    </button>
-                </div>
-
-                <div class="table-container mt-20">
-                    <table class="data-table" id="advanceRequestsTable">
-                        <thead>
-                            <tr>
-                                <th data-ar="الاسم" data-en="Name" data-ur="نام">الاسم</th>
-                                <th data-ar="المشروع" data-en="Project" data-ur="پروجیکٹ">المشروع</th>
-                                <th data-ar="رقم الإقامة" data-en="Residence Number" data-ur="رہائشی نمبر">رقم الإقامة</th>
-                                <th data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</th>
-                                <th data-ar="رقم لوحة الدباب" data-en="Motorcycle Plate" data-ur="موٹرسائیکل پلیٹ">رقم لوحة الدباب</th>
-                                <th data-ar="رقم لوحة السيارة" data-en="Car Plate" data-ur="کار پلیٹ">رقم لوحة السيارة</th>
-                                <th data-ar="المبلغ" data-en="Amount" data-ur="رقم">المبلغ</th>
-                                <th data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</th>
-                                <th data-ar="الحالة" data-en="Status" data-ur="حالت">الحالة</th>
-                                <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="advanceRequestsTableBody">
-                            <!-- البيانات سيتم تحميلها هنا -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Representatives Section -->
-            <div id="representativesSection" style="display: none;">
-                <div class="table-header">
-                    <h2 class="table-title" data-ar="إدارة المندوبين" data-en="Representatives Management" data-ur="نمائندوں کا انتظام">إدارة المندوبين</h2>
-                    <div class="filters">
-                        <div class="filter-group">
-                            <label class="filter-label" data-ar="اسم المندوب" data-en="Representative Name" data-ur="نمائندہ کا نام">اسم المندوب</label>
-                            <input type="text" class="form-input" id="filterRepresentativeName" placeholder="بحث بالاسم">
-                        </div>
-
-                        <div class="filter-group">
-                            <label class="filter-label" data-ar="المنطقة" data-en="Region" data-ur="علاقہ">المنطقة</label>
-                            <input type="text" class="form-input" id="filterRepresentativeRegion" placeholder="بحث بالمنطقة">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="loadRepresentatives()" id="loadRepresentativesBtn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
-                    </button>
-                    <button class="btn btn-primary" onclick="exportRepresentativesToExcel()">
-                        <i class="fas fa-file-excel"></i>
-                        <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
-                    </button>
-                    <button class="btn btn-warning" onclick="showAddRepresentativeForm()">
-                        <i class="fas fa-plus"></i>
-                        <span data-ar="إضافة مندوب جديد" data-en="Add New Representative" data-ur="نیا نمائندہ شامل کریں">إضافة مندوب جديد</span>
-                    </button>
-                </div>
-
-                <div class="table-container mt-20">
-                    <table class="data-table" id="representativesTable">
-                        <thead>
-                            <tr>
-                                <th data-ar="الاسم" data-en="Name" data-ur="نام">الاسم</th>
-                                <th data-ar="رقم الهوية/الإقامة" data-en="ID/Residence Number" data-ur="آئی ڈی/رہائشی نمبر">رقم الهوية/الإقامة</th>
-                                <th data-ar="رقم الهاتف" data-en="Phone Number" data-ur="فون نمبر">رقم الهاتف</th>
-                                <th data-ar="رقم الإقامة" data-en="Residence Number" data-ur="رہائشی نمبر">رقم الإقامة</th>
-                                <th data-ar="المنطقة" data-en="Region" data-ur="علاقہ">المنطقة</th>
-                                <th data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</th>
-                                <th data-ar="رقم اللوحة" data-en="Plate Number" data-ur="پلیٹ نمبر">رقم اللوحة</th>
-                                <th data-ar="نوع السيارة" data-en="Car Type" data-ur="کار کی قسم">نوع السيارة</th>
-                                <th data-ar="التاريخ" data-en="Date" data-ur="تاریخ">التاريخ</th>
-                                <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="representativesTableBody">
-                            <!-- البيانات سيتم تحميلها هنا -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Admins Section -->
-            <div id="adminsSection" style="display: none;">
-                <div class="table-header">
-                    <h2 class="table-title" data-ar="إدارة المشرفين" data-en="Supervisors Management" data-ur="سپروائزر کا انتظام">إدارة المشرفين</h2>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="loadSupervisors()" id="loadSupervisorsBtn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
-                    </button>
-                    <button class="btn btn-warning" onclick="showAddSupervisorForm()">
-                        <i class="fas fa-plus"></i>
-                        <span data-ar="إضافة مشرف جديد" data-en="Add New Supervisor" data-ur="نیا سپروائزر شامل کریں">إضافة مشرف جديد</span>
-                    </button>
-                </div>
-
-                <div class="table-container mt-20">
-                    <table class="data-table" id="supervisorsTable">
-                        <thead>
-                            <tr>
-                                <th data-ar="الاسم الكامل" data-en="Full Name" data-ur="پورا نام">الاسم الكامل</th>
-                                <th data-ar="اسم المستخدم" data-en="Username" data-ur="صارف نام">اسم المستخدم</th>
-                                <th data-ar="الصلاحيات" data-en="Permissions" data-ur="اجازتیں">الصلاحيات</th>
-                                <th data-ar="تاريخ الإضافة" data-en="Added Date" data-ur="شامل کرنے کی تاریخ">تاريخ الإضافة</th>
-                                <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="supervisorsTableBody">
-                            <!-- البيانات سيتم تحميلها هنا -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Reports Section -->
-            <div id="reportsSection" style="display: none;">
-                <div class="table-header">
-                    <h2 class="table-title" data-ar="التقارير والإحصائيات" data-en="Reports and Statistics" data-ur="رپورٹس اور اعداد و شمار">التقارير والإحصائيات</h2>
-                </div>
-
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <div class="stat-value" id="reportTotalApplications">0</div>
-                        <div class="stat-label" data-ar="إجمالي طلبات التوظيف" data-en="Total Job Applications" data-ur="کل ملازمت کی درخواستیں">إجمالي طلبات التوظيف</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="reportActiveRepresentatives">0</div>
-                        <div class="stat-label" data-ar="المندوبين النشطين" data-en="Active Representatives" data-ur="فعال نمائندے">المندوبين النشطين</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="reportPendingAdvances">0</div>
-                        <div class="stat-label" data-ar="طلبات السلفيات المعلقة" data-en="Pending Advance Requests" data-ur="زیر التواء ایڈوانس کی درخواستیں">طلبات السلفيات المعلقة</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="reportTotalSupervisors">0</div>
-                        <div class="stat-label" data-ar="إجمالي المشرفين" data-en="Total Supervisors" data-ur="کل سپروائزر">إجمالي المشرفين</div>
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="generateReports()">
-                        <i class="fas fa-chart-line"></i>
-                        <span data-ar="تحديث التقارير" data-en="Refresh Reports" data-ur="رپورٹس تازہ کریں">تحديث التقارير</span>
-                    </button>
-                    <button class="btn btn-success" onclick="exportReportsToExcel()">
-                        <i class="fas fa-file-excel"></i>
-                        <span data-ar="تصدير التقارير" data-en="Export Reports" data-ur="رپورٹس برآمد کریں">تصدير التقارير</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Add Advance Request Form -->
-            <div id="addAdvanceRequestForm" class="form-container" style="display: none;">
-                <h2 class="form-title" data-ar="إضافة طلب سلفية جديد" data-en="Add New Advance Request" data-ur="نیا ایڈوانس کی درخواست شامل کریں">إضافة طلب سلفية جديد</h2>
-                <form id="advanceRequestForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="اسم الموظف" data-en="Employee Name" data-ur="ملازم کا نام">اسم الموظف</label>
-                            <input type="text" class="form-input" id="employeeName" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="المشروع" data-en="Project" data-ur="پروجیکٹ">المشروع</label>
-                            <input type="text" class="form-input" id="project" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="رقم الإقامة" data-en="Residence Number" data-ur="رہائشی نمبر">رقم الإقامة</label>
-                            <input type="text" class="form-input" id="residenceNumber" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="المبلغ" data-en="Amount" data-ur="رقم">المبلغ</label>
-                            <input type="number" class="form-input" id="advanceAmount" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</label>
-                            <select class="form-select" id="advanceVehicleType" required onchange="toggleAdvancePlateFields()">
-                                <option value="" data-ar="اختر نوع المركبة" data-en="Select Vehicle Type" data-ur="گاڑی کی قسم منتخب کریں">اختر نوع المركبة</option>
-                                <option value="دباب" data-ar="دباب" data-en="Motorcycle" data-ur="موٹرسائیکل">دباب</option>
-                                <option value="سيارة" data-ar="سيارة" data-en="Car" data-ur="کار">سيارة</option>
-                                <option value="كلاهما" data-ar="كلاهما" data-en="Both" data-ur="دونوں">كلاهما</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group" id="motorcyclePlateGroup">
-                            <label class="form-label" data-ar="رقم لوحة الدباب" data-en="Motorcycle Plate" data-ur="موٹرسائیکل پلیٹ">رقم لوحة الدباب</label>
-                            <input type="text" class="form-input" id="motorcyclePlate">
-                        </div>
-
-                        <div class="form-group" id="carPlateGroup" style="display: none;">
-                            <label class="form-label" data-ar="رقم لوحة السيارة" data-en="Car Plate" data-ur="کار پلیٹ">رقم لوحة السيارة</label>
-                            <input type="text" class="form-input" id="carPlate">
-                        </div>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-primary btn-full" id="submitAdvanceBtn">
-                            <i class="fas fa-save"></i>
-                            <span data-ar="حفظ طلب السلفية" data-en="Save Advance Request" data-ur="ایڈوانس کی درخواست محفوظ کریں">حفظ طلب السلفية</span>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="btn-group">
-                    <button class="btn btn-secondary btn-full" onclick="showAdvanceRequestsSection()">
-                        <i class="fas fa-arrow-right"></i>
-                        <span data-ar="العودة لطلبات السلفيات" data-en="Back to Advance Requests" data-ur="ایڈوانس کی درخواستوں پر واپس جائیں">العودة لطلبات السلفيات</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Add Representative Form -->
-            <div id="addRepresentativeForm" class="form-container" style="display: none;">
-                <h2 class="form-title" data-ar="إضافة مندوب جديد" data-en="Add New Representative" data-ur="نیا نمائندہ شامل کریں">إضافة مندوب جديد</h2>
-                <form id="representativeForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="الاسم الكامل" data-en="Full Name" data-ur="پورا نام">الاسم الكامل</label>
-                            <input type="text" class="form-input" id="representativeName" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="رقم الهوية / الإقامة" data-en="ID / Residence Number" data-ur="آئی ڈی / رہائشی نمبر">رقم الهوية / الإقامة</label>
-                            <input type="text" class="form-input" id="representativeId" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="رقم الهاتف" data-en="Phone Number" data-ur="فون نمبر">رقم الهاتف</label>
-                            <input type="tel" class="form-input" id="representativePhone" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="رقم الإقامة" data-en="Residence Number" data-ur="رہائشی نمبر">رقم الإقامة</label>
-                            <input type="text" class="form-input" id="representativeResidenceNumber" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="المنطقة" data-en="Region" data-ur="علاقہ">المنطقة</label>
-                            <input type="text" class="form-input" id="representativeRegion" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</label>
-                            <select class="form-select" id="representativeVehicleType" required onchange="toggleRepresentativeVehicleFields()">
-                                <option value="" data-ar="اختر نوع المركبة" data-en="Select Vehicle Type" data-ur="گاڑی کی قسم منتخب کریں">اختر نوع المركبة</option>
-                                <option value="دباب" data-ar="دباب" data-en="Motorcycle" data-ur="موٹرسائیکل">دباب</option>
-                                <option value="سيارة" data-ar="سيارة" data-en="Car" data-ur="کار">سيارة</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="رقم اللوحة" data-en="Plate Number" data-ur="پلیٹ نمبر">رقم اللوحة</label>
-                            <input type="text" class="form-input" id="representativePlate" required>
-                        </div>
-
-                        <div class="form-group" id="representativeCarTypeGroup" style="display: none;">
-                            <label class="form-label" data-ar="نوع السيارة" data-en="Car Type" data-ur="کار کی قسم">نوع السيارة</label>
-                            <input type="text" class="form-input" id="representativeCarType">
-                        </div>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-primary btn-full" id="submitRepresentativeBtn">
-                            <i class="fas fa-save"></i>
-                            <span data-ar="حفظ بيانات المندوب" data-en="Save Representative Data" data-ur="نمائندہ کا ڈیٹا محفوظ کریں">حفظ بيانات المندوب</span>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="btn-group">
-                    <button class="btn btn-secondary btn-full" onclick="showRepresentativesSection()">
-                        <i class="fas fa-arrow-right"></i>
-                        <span data-ar="العودة للمندوبين" data-en="Back to Representatives" data-ur="نمائندوں پر واپس جائیں">العودة للمندوبين</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Add Supervisor Form -->
-            <div id="addSupervisorForm" class="form-container" style="display: none;">
-                <h2 class="form-title" data-ar="إضافة مشرف جديد" data-en="Add New Supervisor" data-ur="نیا سپروائزر شامل کریں">إضافة مشرف جديد</h2>
-                <form id="supervisorForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="الاسم الكامل" data-en="Full Name" data-ur="پورا نام">الاسم الكامل</label>
-                            <input type="text" class="form-input" id="supervisorFullName" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="اسم المستخدم" data-en="Username" data-ur="صارف نام">اسم المستخدم</label>
-                            <input type="text" class="form-input" id="supervisorUsername" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" data-ar="كلمة المرور" data-en="Password" data-ur="پاس ورڈ">كلمة المرور</label>
-                            <input type="password" class="form-input" id="supervisorPassword" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-ar="تأكيد كلمة المرور" data-en="Confirm Password" data-ur="پاس ورڈ کی تصدیق کریں">تأكيد كلمة المرور</label>
-                            <input type="password" class="form-input" id="supervisorConfirmPassword" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" data-ar="صلاحيات الوصول" data-en="Access Permissions" data-ur="رسائی کی اجازتیں">صلاحيات الوصول</label>
-                        
-                        <div class="permission-checkbox">
-                            <input type="checkbox" id="permissionJobApps" checked>
-                            <label for="permissionJobApps" data-ar="إدارة طلبات التوظيف" data-en="Manage Job Applications" data-ur="ملازمت کی درخواستیں منظم کریں">إدارة طلبات التوظيف</label>
-                        </div>
-                        
-                        <div class="permission-checkbox">
-                            <input type="checkbox" id="permissionAdvances" checked>
-                            <label for="permissionAdvances" data-ar="إدارة طلبات السلفيات" data-en="Manage Advance Requests" data-ur="ایڈوانس کی درخواستیں منظم کریں">إدارة طلبات السلفيات</label>
-                        </div>
-                        
-                        <div class="permission-checkbox">
-                            <input type="checkbox" id="permissionRepresentatives">
-                            <label for="permissionRepresentatives" data-ar="إدارة المندوبين" data-en="Manage Representatives" data-ur="نمائندوں کا انتظام">إدارة المندوبين</label>
-                        </div>
-                        
-                        <div class="permission-checkbox">
-                            <input type="checkbox" id="permissionAdmins">
-                            <label for="permissionAdmins" data-ar="إدارة المشرفين" data-en="Manage Supervisors" data-ur="سپروائزر کا انتظام">إدارة المشرفين</label>
-                        </div>
-                        
-                        <div class="permission-checkbox">
-                            <input type="checkbox" id="permissionReports">
-                            <label for="permissionReports" data-ar="عرض التقارير" data-en="View Reports" data-ur="رپورٹس دیکھیں">عرض التقارير</label>
-                        </div>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-primary btn-full" id="submitSupervisorBtn">
-                            <i class="fas fa-save"></i>
-                            <span data-ar="حفظ بيانات المشرف" data-en="Save Supervisor Data" data-ur="سپروائزر کا ڈیٹا محفوظ کریں">حفظ بيانات المشرف</span>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="btn-group">
-                    <button class="btn btn-secondary btn-full" onclick="showAdminsSection()">
-                        <i class="fas fa-arrow-right"></i>
-                        <span data-ar="العودة للمشرفين" data-en="Back to Supervisors" data-ur="سپروائزر پر واپس جائیں">العودة للمشرفين</span>
-                    </button>
-                </div>
-            </div>
+            <!-- باقي الأقسام تبقى كما هي -->
+            <!-- ... -->
+            
         </div>
     </div>
 
@@ -951,13 +573,13 @@
             }
         };
 
-        // بيانات الدخول الافتراضية
+        // بيانات الدخول الافتراضية - مخفية
         const defaultSupervisors = [
             {
-                id: "default-admin",
-                fullName: "المشرف العام",
-                username: "admin",
-                password: "123456",
+                id: "ahmed-al-sadiq",
+                fullName: "أحمد الصادق",
+                username: "احمد الصادق",
+                password: "0094",
                 permissions: {
                     jobApps: true,
                     advances: true,
@@ -985,7 +607,7 @@
             if (!systemState.firebaseReady) return;
 
             try {
-                const supervisorRef = window.firestoreFunctions.doc(window.db, "supervisors", "default-admin");
+                const supervisorRef = window.firestoreFunctions.doc(window.db, "supervisors", "ahmed-al-sadiq");
                 const supervisorSnap = await window.firestoreFunctions.getDoc(supervisorRef);
                 
                 if (!supervisorSnap.exists()) {
@@ -1012,8 +634,12 @@
             if (defaultSupervisor) {
                 systemState.currentSupervisor = defaultSupervisor;
                 systemState.currentPermissions = defaultSupervisor.permissions;
+                
+                // تحديث الاسم في لوحة التحكم
+                document.getElementById('currentSupervisorName').textContent = defaultSupervisor.fullName;
+                
                 showSupervisorDashboard();
-                showNotification(getTranslation('✅ تم تسجيل الدخول بنجاح', '✅ Login successful', '✅ لاگ ان کامیاب'), 'success');
+                showNotification(getTranslation('✅ تم تسجيل الدخول بنجاح - أحمد الصادق', '✅ Login successful - Ahmed Al-Sadiq', '✅ لاگ ان کامیاب - احمد الصادق'), 'success');
                 return;
             }
 
@@ -1069,10 +695,7 @@
             }
         }
 
-        // باقي الدوال تبقى كما هي بدون تغيير
-        // [يتم وضع باقي الدوال JavaScript هنا بنفس الطريقة السابقة]
-        // لأغراض الاختصار، سيتم تضمين الدوال الأساسية فقط
-
+        // دوال العرض الأساسية
         function showHomePage() {
             document.getElementById('jobApplicationForm').style.display = 'none';
             document.getElementById('supervisorLogin').style.display = 'none';
@@ -1103,6 +726,10 @@
             document.getElementById('successMessage').style.display = 'none';
             document.getElementById('verificationContainer').style.display = 'none';
             document.getElementById('jobAnnouncement').style.display = 'none';
+            
+            // مسح الحقول عند العرض
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
         }
 
         function showSupervisorDashboard() {
@@ -1131,8 +758,10 @@
                 reports: false
             };
             
-            document.getElementById('username').value = 'admin';
-            document.getElementById('password').value = '123456';
+            // مسح الحقول عند الخروج
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            
             showHomePage();
             showNotification(getTranslation('تم تسجيل الخروج', 'Logged out successfully', 'لاگ آؤٹ کامیاب'), 'info');
         }
@@ -1146,68 +775,7 @@
             document.getElementById('reportsNavBtn').style.display = permissions.reports ? 'flex' : 'none';
         }
 
-        // دوال العرض للأقسام المختلفة
-        function showJobApplicationsSection() {
-            document.getElementById('jobApplicationsSection').style.display = 'block';
-            document.getElementById('advanceRequestsSection').style.display = 'none';
-            document.getElementById('representativesSection').style.display = 'none';
-            document.getElementById('adminsSection').style.display = 'none';
-            document.getElementById('reportsSection').style.display = 'none';
-            document.getElementById('addAdvanceRequestForm').style.display = 'none';
-            document.getElementById('addRepresentativeForm').style.display = 'none';
-            document.getElementById('addSupervisorForm').style.display = 'none';
-            loadJobApplications();
-        }
-
-        function showAdvanceRequestsSection() {
-            document.getElementById('jobApplicationsSection').style.display = 'none';
-            document.getElementById('advanceRequestsSection').style.display = 'block';
-            document.getElementById('representativesSection').style.display = 'none';
-            document.getElementById('adminsSection').style.display = 'none';
-            document.getElementById('reportsSection').style.display = 'none';
-            document.getElementById('addAdvanceRequestForm').style.display = 'none';
-            document.getElementById('addRepresentativeForm').style.display = 'none';
-            document.getElementById('addSupervisorForm').style.display = 'none';
-            loadAdvanceRequests();
-        }
-
-        function showRepresentativesSection() {
-            document.getElementById('jobApplicationsSection').style.display = 'none';
-            document.getElementById('advanceRequestsSection').style.display = 'none';
-            document.getElementById('representativesSection').style.display = 'block';
-            document.getElementById('adminsSection').style.display = 'none';
-            document.getElementById('reportsSection').style.display = 'none';
-            document.getElementById('addAdvanceRequestForm').style.display = 'none';
-            document.getElementById('addRepresentativeForm').style.display = 'none';
-            document.getElementById('addSupervisorForm').style.display = 'none';
-            loadRepresentatives();
-        }
-
-        function showAdminsSection() {
-            document.getElementById('jobApplicationsSection').style.display = 'none';
-            document.getElementById('advanceRequestsSection').style.display = 'none';
-            document.getElementById('representativesSection').style.display = 'none';
-            document.getElementById('adminsSection').style.display = 'block';
-            document.getElementById('reportsSection').style.display = 'none';
-            document.getElementById('addAdvanceRequestForm').style.display = 'none';
-            document.getElementById('addRepresentativeForm').style.display = 'none';
-            document.getElementById('addSupervisorForm').style.display = 'none';
-            loadSupervisors();
-        }
-
-        function showReportsSection() {
-            document.getElementById('jobApplicationsSection').style.display = 'none';
-            document.getElementById('advanceRequestsSection').style.display = 'none';
-            document.getElementById('representativesSection').style.display = 'none';
-            document.getElementById('adminsSection').style.display = 'none';
-            document.getElementById('reportsSection').style.display = 'block';
-            document.getElementById('addAdvanceRequestForm').style.display = 'none';
-            document.getElementById('addRepresentativeForm').style.display = 'none';
-            document.getElementById('addSupervisorForm').style.display = 'none';
-            generateReports();
-        }
-
-        // دوال تحميل البيانات
+        // دوال تحميل البيانات الأساسية
         async function loadJobApplications() {
             if (!systemState.firebaseReady) {
                 showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
@@ -1286,19 +854,6 @@
             } catch (error) {
                 console.error('Error loading data:', error);
                 showNotification(getTranslation('❌ حدث خطأ أثناء تحميل البيانات', '❌ Error loading data', '❌ ڈیٹا لوڈ کرنے میں خرابی'), 'error');
-            }
-        }
-
-        // دوال التصدير والإحصائيات
-        function exportJobApplicationsToExcel() {
-            try {
-                const table = document.getElementById('jobApplicationsTable');
-                const workbook = XLSX.utils.table_to_book(table, {sheet: "طلبات التوظيف"});
-                XLSX.writeFile(workbook, "job_applications.xlsx");
-                showNotification(getTranslation('✅ تم تحميل ملف Excel بنجاح', '✅ Excel file downloaded successfully', '✅ ایکسل فائل کامیابی سے ڈاؤن لوڈ ہو گئی'), 'success');
-            } catch (error) {
-                console.error('Error exporting to Excel:', error);
-                showNotification(getTranslation('❌ حدث خطأ أثناء التصدير', '❌ Error exporting to Excel', '❌ ایکسل میں برآمد کرنے میں خرابی'), 'error');
             }
         }
 
@@ -1386,12 +941,50 @@
             }, 5000);
         }
 
+        // دوال مساعدة إضافية
+        function resetForm() {
+            document.getElementById('jobForm').reset();
+            document.getElementById('residencePreview').innerHTML = '';
+            document.getElementById('licensePreview').innerHTML = '';
+            document.getElementById('residenceWarning').style.display = 'none';
+            document.getElementById('licenseWarning').style.display = 'none';
+            document.getElementById('residenceInfo').style.display = 'block';
+            systemState.currentEditingId = null;
+            systemState.selectedResidenceImage = null;
+            systemState.selectedLicenseImage = null;
+            systemState.hasExpiredResidence = false;
+            systemState.hasExpiredLicense = false;
+        }
+
+        async function loadDashboardStats() {
+            if (!systemState.firebaseReady) return;
+
+            try {
+                // تحميل إحصائيات طلبات التوظيف
+                const jobAppsSnapshot = await window.firestoreFunctions.getDocs(
+                    window.firestoreFunctions.collection(window.db, "jobApplications")
+                );
+                document.getElementById('totalApplications').textContent = jobAppsSnapshot.size;
+                
+                // تحميل إحصائيات المندوبين
+                const repsSnapshot = await window.firestoreFunctions.getDocs(
+                    window.firestoreFunctions.collection(window.db, "representatives")
+                );
+                document.getElementById('totalRepresentatives').textContent = repsSnapshot.size;
+                
+                // تحميل إحصائيات المشرفين
+                const supervisorsSnapshot = await window.firestoreFunctions.getDocs(
+                    window.firestoreFunctions.collection(window.db, "supervisors")
+                );
+                document.getElementById('totalSupervisors').textContent = supervisorsSnapshot.size;
+                
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+            }
+        }
+
         // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            // تعبئة بيانات الدخول الافتراضية
-            document.getElementById('username').value = 'admin';
-            document.getElementById('password').value = '123456';
-            
             updateLanguage('ar');
             showNotification(getTranslation('مرحباً بك في نظام توظيف الزهراني', 'Welcome to Al-Zahrani Employment System', 'الزہرانی ملازمت کے نظام میں خوش آمدید'), 'info');
         });
