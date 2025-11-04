@@ -211,6 +211,70 @@
         .activity-item { padding: 10px; border-bottom: 1px solid #e2e8f0; }
         .activity-item:last-child { border-bottom: none; }
         
+        /* استيراد خط عربي جميل */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        /* إعداد الحركة عند التحميل (انزلاق من اليمين + ظهور تدريجي) */
+        @keyframes fadeInRight {
+          from {
+            opacity: 0;
+            transform: translateX(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        /* حاوية العنصر الرئيسي */
+        .supervisor-box {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          direction: rtl;
+          font-family: 'Cairo', sans-serif;
+          animation: fadeInRight 1.2s ease forwards;
+          transition: all 0.3s ease;
+          padding: 15px;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 15px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          margin-bottom: 20px;
+        }
+
+        /* إعداد الصورة */
+        .supervisor-box img {
+          width: 55px;
+          height: 55px;
+          border-radius: 50%;
+          border: 2px solid #ccc;
+          object-fit: cover;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          transition: all 0.3s ease;
+        }
+
+        /* تنسيق النص */
+        .supervisor-box strong {
+          font-size: 16px;
+          color: #222;
+        }
+
+        .supervisor-box span {
+          font-size: 14px;
+          color: #666;
+        }
+
+        /* تأثير الحركة عند مرور الماوس (Hover) */
+        .supervisor-box:hover {
+          transform: translateY(-5px) scale(1.03);
+        }
+
+        /* توهج خفيف حول الصورة عند مرور الماوس */
+        .supervisor-box:hover img {
+          box-shadow: 0 0 12px rgba(0, 140, 255, 0.6);
+          border-color: rgba(0, 140, 255, 0.5);
+        }
+        
         @media (max-width: 768px) {
             .nav-cards, .form-grid { grid-template-columns: 1fr; }
             .table-header { flex-direction: column; align-items: stretch; }
@@ -458,6 +522,10 @@
                         <i class="fas fa-hand-holding-usd"></i>
                         <span data-ar="طلبات السلفيات" data-en="Advance Requests" data-ur="ایڈوانس کی درخواستیں">طلبات السلفيات</span>
                     </button>
+                    <button class="btn btn-warning supervisor-nav-btn" onclick="showPage('vehicleManagementPage')" id="navVehicles">
+                        <i class="fas fa-car"></i>
+                        <span data-ar="إدارة المركبات" data-en="Vehicle Management" data-ur="گاڑیوں کا انتظام">إدارة المركبات</span>
+                    </button>
                     <button class="btn btn-warning supervisor-nav-btn" onclick="showPage('representativesPage')" id="navRepresentatives">
                         <i class="fas fa-user-tie"></i>
                         <span data-ar="المندوبين" data-en="Representatives" data-ur="نمائندے">المندوبين</span>
@@ -470,6 +538,15 @@
                         <i class="fas fa-chart-bar"></i>
                         <span data-ar="التقارير" data-en="Reports" data-ur="رپورٹس">التقارير</span>
                     </button>
+                </div>
+
+                <!-- مكون مشرف النظام Ahmad Osman -->
+                <div class="supervisor-box">
+                  <img src="https://i.ibb.co/Nd4nzd3x" alt="Ahmad Osman">
+                  <div>
+                    <strong>Ahmad Osman ⚔️</strong><br>
+                    <span>مشرف النظام</span>
+                  </div>
                 </div>
 
                 <!-- سجل النشاطات -->
@@ -746,6 +823,223 @@
                     <button class="btn btn-secondary btn-full" onclick="showPage('advanceRequestsPage')">
                         <i class="fas fa-arrow-right"></i>
                         <span data-ar="العودة لطلبات السلفيات" data-en="Back to Advance Requests" data-ur="ایڈوانس کی درخواستوں پر واپس جائیں">العودة لطلبات السلفيات</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة إدارة المركبات -->
+        <div id="vehicleManagementPage" class="page">
+            <div class="header">
+                <h1 class="main-title" data-ar="إدارة المركبات" data-en="Vehicle Management" data-ur="گاڑیوں کا انتظام">إدارة المركبات</h1>
+            </div>
+
+            <div class="form-container">
+                <div class="table-header">
+                    <h2 class="table-title" data-ar="قائمة المركبات" data-en="Vehicles List" data-ur="گاڑیوں کی فہرست">قائمة المركبات</h2>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="loadVehicles()" id="loadVehiclesBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span data-ar="عرض البيانات" data-en="Show Data" data-ur="ڈیٹا دکھائیں">عرض البيانات</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="exportVehiclesToExcel()" id="exportVehiclesBtn">
+                        <i class="fas fa-file-excel"></i>
+                        <span data-ar="تحميل Excel" data-en="Download Excel" data-ur="ایکسل ڈاؤن لوڈ کریں">تحميل Excel</span>
+                    </button>
+                    <button class="btn btn-warning" onclick="showPage('addVehiclePage')" id="addVehicleBtn">
+                        <i class="fas fa-plus"></i>
+                        <span data-ar="إضافة مركبة جديدة" data-en="Add New Vehicle" data-ur="نئی گاڑی شامل کریں">إضافة مركبة جديدة</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="showPage('supervisorDashboardPage')">
+                        <i class="fas fa-arrow-right"></i>
+                        <span data-ar="العودة للوحة التحكم" data-en="Back to Dashboard" data-ur="ڈیش بورڈ پر واپس جائیں">العودة للوحة التحكم</span>
+                    </button>
+                </div>
+
+                <div class="table-container mt-20">
+                    <table class="data-table" id="vehiclesTable">
+                        <thead>
+                            <tr>
+                                <th data-ar="رقم اللوحة" data-en="Plate Number" data-ur="پلیٹ نمبر">رقم اللوحة</th>
+                                <th data-ar="كود التعبئة" data-en="Fill Code" data-ur="فلنگ کوڈ">كود التعبئة</th>
+                                <th data-ar="نوع المركبة" data-en="Vehicle Type" data-ur="گاڑی کی قسم">نوع المركبة</th>
+                                <th data-ar="المشروع" data-en="Project" data-ur="پروجیکٹ">المشروع</th>
+                                <th data-ar="منطقة الإستلام" data-en="Receiving Area" data-ur="وصولی کا علاقہ">منطقة الإستلام</th>
+                                <th data-ar="تاريخ الإستلام" data-en="Receiving Date" data-ur="وصولی کی تاریخ">تاريخ الإستلام</th>
+                                <th data-ar="حالة التفويض" data-en="Authorization Status" data-ur="اجازت کی حالت">حالة التفويض</th>
+                                <th data-ar="الإجراءات" data-en="Actions" data-ur="اعمال">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vehiclesTableBody">
+                            <!-- البيانات سيتم تحميلها هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة إضافة مركبة جديدة -->
+        <div id="addVehiclePage" class="page">
+            <div class="header">
+                <h1 class="main-title" data-ar="إضافة مركبة جديدة" data-en="Add New Vehicle" data-ur="نئی گاڑی شامل کریں">إضافة مركبة جديدة</h1>
+            </div>
+
+            <div class="form-container">
+                <h2 class="form-title" data-ar="بيانات المركبة الجديدة" data-en="New Vehicle Data" data-ur="نئی گاڑی کا ڈیٹا">بيانات المركبة الجديدة</h2>
+                <form id="vehicleForm">
+                    <h3 data-ar="المعلومات الأساسية للمركبة" data-en="Basic Vehicle Information" data-ur="گاڑی کی بنیادی معلومات">المعلومات الأساسية للمركبة</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="رقم اللوحة*" data-en="Plate Number*" data-ur="پلیٹ نمبر*">رقم اللوحة*</label>
+                            <input type="text" class="form-input" id="vehiclePlate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="كود التعبئة" data-en="Fill Code" data-ur="فلنگ کوڈ">كود التعبئة</label>
+                            <input type="text" class="form-input" id="fillCode">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="نوع المركبة*" data-en="Vehicle Type*" data-ur="گاڑی کی قسم*">نوع المركبة*</label>
+                            <select class="form-select" id="vehicleType" required>
+                                <option value="" data-ar="اختر نوع المركبة" data-en="Select Vehicle Type" data-ur="گاڑی کی قسم منتخب کریں">اختر نوع المركبة</option>
+                                <option value="بيجو" data-ar="بيجو" data-en="Peugeot" data-ur="پیوگو">بيجو</option>
+                                <option value="نيسان" data-ar="نيسان" data-en="Nissan" data-ur="نِسان">نيسان</option>
+                                <option value="دباب" data-ar="دباب" data-en="Motorcycle" data-ur="موٹرسائیکل">دباب</option>
+                                <option value="أخرى" data-ar="أخرى" data-en="Other" data-ur="دیگر">أخرى</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="نوع المركبة (يدوي)" data-en="Vehicle Type (Manual)" data-ur="گاڑی کی قسم (دستی)">نوع المركبة (يدوي)</label>
+                            <input type="text" class="form-input" id="vehicleTypeManual" placeholder="أدخل نوع المركبة يدوياً">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="المشروع*" data-en="Project*" data-ur="پروجیکٹ*">المشروع*</label>
+                            <select class="form-select" id="project" required>
+                                <option value="" data-ar="اختر المشروع" data-en="Select Project" data-ur="پروجیکٹ منتخب کریں">اختر المشروع</option>
+                                <option value="نينجا" data-ar="نينجا" data-en="Ninja" data-ur="ننجا">نينجا</option>
+                                <option value="استور" data-ar="استور" data-en="Store" data-ur="اسٹور">استور</option>
+                                <option value="أخرى" data-ar="أخرى" data-en="Other" data-ur="دیگر">أخرى</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="منطقة الإستلام*" data-en="Receiving Area*" data-ur="وصولی کا علاقہ*">منطقة الإستلام*</label>
+                            <input type="text" class="form-input" id="receivingArea" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="تاريخ الإستلام*" data-en="Receiving Date*" data-ur="وصولی کی تاریخ*">تاريخ الإستلام*</label>
+                            <input type="date" class="form-input" id="receivingDate" required>
+                        </div>
+                    </div>
+
+                    <h3 data-ar="معلومات التفويض" data-en="Authorization Information" data-ur="اجازت کی معلومات">معلومات التفويض</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="تاريخ نهاية التفويض*" data-en="Authorization End Date*" data-ur="اجازت ختم ہونے کی تاریخ*">تاريخ نهاية التفويض*</label>
+                            <input type="date" class="form-input" id="authorizationEndDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="حالة التفويض*" data-en="Authorization Status*" data-ur="اجازت کی حالت*">حالة التفويض*</label>
+                            <select class="form-select" id="authorizationStatus" required>
+                                <option value="" data-ar="اختر الحالة" data-en="Select Status" data-ur="حالت منتخب کریں">اختر الحالة</option>
+                                <option value="نشط" data-ar="نشط" data-en="Active" data-ur="فعال">نشط</option>
+                                <option value="منتهي" data-ar="منتهي" data-en="Expired" data-ur="ختم">منتهي</option>
+                                <option value="قيد التجديد" data-ar="قيد التجديد" data-en="Under Renewal" data-ur="تجدید کے تحت">قيد التجديد</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 data-ar="معلومات سائق المركبة" data-en="Vehicle Driver Information" data-ur="گاڑی کے ڈرائیور کی معلومات">معلومات سائق المركبة</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="السائق*" data-en="Driver*" data-ur="ڈرائیور*">السائق*</label>
+                            <input type="text" class="form-input" id="driverName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="رقم الهوية*" data-en="ID Number*" data-ur="آئی ڈی نمبر*">رقم الهوية*</label>
+                            <input type="text" class="form-input" id="driverIdNumber" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="رقم الهاتف*" data-en="Phone Number*" data-ur="فون نمبر*">رقم الهاتف*</label>
+                            <input type="tel" class="form-input" id="driverPhone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="تاريخ إستلام المركبة*" data-en="Vehicle Receiving Date*" data-ur="گاڑی وصولی کی تاریخ*">تاريخ إستلام المركبة*</label>
+                            <input type="date" class="form-input" id="driverReceivingDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="إسم السائق السابق" data-en="Previous Driver Name" data-ur="پچھلے ڈرائیور کا نام">إسم السائق السابق</label>
+                            <input type="text" class="form-input" id="previousDriverName">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="رقم هوية السائق السابق" data-en="Previous Driver ID" data-ur="پچھلے ڈرائیور کی آئی ڈی">رقم هوية السائق السابق</label>
+                            <input type="text" class="form-input" id="previousDriverId">
+                        </div>
+                    </div>
+
+                    <h3 data-ar="مرفقات المركبة" data-en="Vehicle Attachments" data-ur="گاڑی کے منسلکات">مرفقات المركبة</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="إستمارة المركبة" data-en="Vehicle Form" data-ur="گاڑی کا فارم">إستمارة المركبة</label>
+                            <input type="file" class="form-input" id="vehicleFormFile" accept="image/*, .pdf">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ar="صورة التفويض" data-en="Authorization Photo" data-ur="اجازت کی تصویر">صورة التفويض</label>
+                            <input type="file" class="form-input" id="authorizationPhoto" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="صورة السند" data-en="Document Photo" data-ur="دستاویز کی تصویر">صورة السند</label>
+                            <input type="file" class="form-input" id="documentPhoto" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-ar="ملاحظات" data-en="Notes" data-ur="نوٹس">ملاحظات</label>
+                        <textarea class="form-textarea" id="vehicleNotes" placeholder="أدخل أي ملاحظات إضافية"></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary btn-full" id="submitVehicleBtn">
+                            <i class="fas fa-save"></i>
+                            <span data-ar="حفظ بيانات المركبة" data-en="Save Vehicle Data" data-ur="گاڑی کا ڈیٹا محفوظ کریں">حفظ بيانات المركبة</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-full" onclick="showPage('vehicleManagementPage')">
+                        <i class="fas fa-arrow-right"></i>
+                        <span data-ar="العودة للمركبات" data-en="Back to Vehicles" data-ur="گاڑیوں پر واپس جائیں">العودة للمركبات</span>
                     </button>
                 </div>
             </div>
@@ -1163,6 +1457,8 @@
                 loadJobApplications();
             } else if (pageId === 'advanceRequestsPage') {
                 loadAdvanceRequests();
+            } else if (pageId === 'vehicleManagementPage') {
+                loadVehicles();
             } else if (pageId === 'representativesPage') {
                 loadRepresentatives();
             } else if (pageId === 'adminsPage') {
@@ -1197,6 +1493,7 @@
             // إخفاء/إظهار الأزرار بناءً على الصلاحيات
             document.getElementById('navJobApps').style.display = permissions.jobApps ? 'flex' : 'none';
             document.getElementById('navAdvances').style.display = permissions.advances ? 'flex' : 'none';
+            document.getElementById('navVehicles').style.display = permissions.advances ? 'flex' : 'none'; // استخدام نفس صلاحية السلفيات للمركبات
             document.getElementById('navRepresentatives').style.display = permissions.representatives ? 'flex' : 'none';
             document.getElementById('navAdmins').style.display = permissions.admins ? 'flex' : 'none';
             document.getElementById('navReports').style.display = permissions.reports ? 'flex' : 'none';
@@ -1205,6 +1502,8 @@
             document.getElementById('exportJobAppsBtn').style.display = permissions.jobApps ? 'flex' : 'none';
             document.getElementById('exportAdvancesBtn').style.display = permissions.advances ? 'flex' : 'none';
             document.getElementById('addAdvanceBtn').style.display = permissions.advances ? 'flex' : 'none';
+            document.getElementById('exportVehiclesBtn').style.display = permissions.advances ? 'flex' : 'none';
+            document.getElementById('addVehicleBtn').style.display = permissions.advances ? 'flex' : 'none';
             document.getElementById('exportRepsBtn').style.display = permissions.representatives ? 'flex' : 'none';
             document.getElementById('addRepBtn').style.display = permissions.representatives ? 'flex' : 'none';
             document.getElementById('addSupervisorBtn').style.display = permissions.admins ? 'flex' : 'none';
@@ -1429,6 +1728,52 @@
             }
         }
 
+        async function loadVehicles() {
+            if (!systemState.firebaseReady) return;
+
+            try {
+                const q = window.firestoreFunctions.query(
+                    window.firestoreFunctions.collection(window.db, "vehicles"),
+                    window.firestoreFunctions.orderBy("timestamp", "desc")
+                );
+                
+                const querySnapshot = await window.firestoreFunctions.getDocs(q);
+                const tableBody = document.getElementById('vehiclesTableBody');
+                tableBody.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">' + getTranslation('لا توجد بيانات', 'No data found', 'کوئی ڈیٹا نہیں ملا') + '</td></tr>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = `
+                        <tr data-id="${doc.id}">
+                            <td>${data.vehiclePlate || '-'}</td>
+                            <td>${data.fillCode || '-'}</td>
+                            <td>${data.vehicleType || '-'}</td>
+                            <td>${data.project || '-'}</td>
+                            <td>${data.receivingArea || '-'}</td>
+                            <td>${data.receivingDate || '-'}</td>
+                            <td>${data.authorizationStatus || '-'}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-danger btn-small" onclick="deleteVehicle('${doc.id}')">
+                                        <i class="fas fa-trash"></i> ${getTranslation('حذف', 'Delete', 'حذف کریں')}
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+            } catch (error) {
+                console.error('Error loading vehicles:', error);
+            }
+        }
+
         async function loadRepresentatives() {
             if (!systemState.firebaseReady) return;
 
@@ -1552,6 +1897,23 @@
                 loadAdvanceRequests();
             } catch (error) {
                 console.error('Error deleting advance request:', error);
+            }
+        }
+
+        async function deleteVehicle(vehicleId) {
+            if (!confirm(getTranslation('هل أنت متأكد من حذف هذه المركبة؟', 'Are you sure you want to delete this vehicle?', 'کیا آپ واقعی اس گاڑی کو حذف کرنا چاہتے ہیں؟'))) {
+                return;
+            }
+
+            try {
+                await window.firestoreFunctions.deleteDoc(
+                    window.firestoreFunctions.doc(window.db, "vehicles", vehicleId)
+                );
+                logActivity('حذف مركبة', `قام ${systemState.currentSupervisor.fullName} بحذف مركبة`);
+                showNotification(getTranslation('✅ تم حذف المركبة بنجاح', '✅ Vehicle deleted successfully', '✅ گاڑی کامیابی سے حذف ہو گئی'), 'success');
+                loadVehicles();
+            } catch (error) {
+                console.error('Error deleting vehicle:', error);
             }
         }
 
@@ -1821,6 +2183,76 @@
             }
         }
 
+        async function submitVehicleForm(event) {
+            event.preventDefault();
+            
+            if (!systemState.firebaseReady) {
+                showNotification(getTranslation('⏳ جاري الاتصال بقاعدة البيانات...', '⏳ Connecting to database...', '⏳ ڈیٹا بیس سے منسلک ہو رہا ہے...'), 'warning');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitVehicleBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.innerHTML = '<div class="loading"></div> ' + getTranslation('جاري الحفظ...', 'Saving...', 'محفوظ ہو رہا ہے...');
+                submitBtn.disabled = true;
+
+                let vehicleType = document.getElementById('vehicleType').value;
+                if (vehicleType === 'أخرى') {
+                    vehicleType = document.getElementById('vehicleTypeManual').value.trim();
+                }
+
+                const formData = {
+                    vehiclePlate: document.getElementById('vehiclePlate').value.trim(),
+                    fillCode: document.getElementById('fillCode').value.trim(),
+                    vehicleType: vehicleType,
+                    project: document.getElementById('project').value,
+                    receivingArea: document.getElementById('receivingArea').value.trim(),
+                    receivingDate: document.getElementById('receivingDate').value,
+                    authorizationEndDate: document.getElementById('authorizationEndDate').value,
+                    authorizationStatus: document.getElementById('authorizationStatus').value,
+                    driverName: document.getElementById('driverName').value.trim(),
+                    driverIdNumber: document.getElementById('driverIdNumber').value.trim(),
+                    driverPhone: document.getElementById('driverPhone').value.trim(),
+                    driverReceivingDate: document.getElementById('driverReceivingDate').value,
+                    previousDriverName: document.getElementById('previousDriverName').value.trim(),
+                    previousDriverId: document.getElementById('previousDriverId').value.trim(),
+                    notes: document.getElementById('vehicleNotes').value.trim(),
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: new Date(),
+                    createdAt: new Date().toISOString(),
+                    addedBy: systemState.currentSupervisor.fullName
+                };
+
+                if (!formData.vehiclePlate || !formData.vehicleType || !formData.project || !formData.receivingArea || !formData.receivingDate || 
+                    !formData.authorizationEndDate || !formData.authorizationStatus || !formData.driverName || !formData.driverIdNumber || 
+                    !formData.driverPhone || !formData.driverReceivingDate) {
+                    showNotification(getTranslation('❌ يرجى ملء جميع الحقول المطلوبة', '❌ Please fill all required fields', '❌ براہ کرم تمام ضروری فیلڈز کو پُر کریں'), 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                await window.firestoreFunctions.addDoc(
+                    window.firestoreFunctions.collection(window.db, "vehicles"), 
+                    formData
+                );
+                
+                logActivity('إضافة مركبة', `قام ${systemState.currentSupervisor.fullName} بإضافة مركبة جديدة`);
+                showNotification(getTranslation('✅ تم حفظ بيانات المركبة بنجاح', '✅ Vehicle data saved successfully', '✅ گاڑی کا ڈیٹا کامیابی سے محفوظ ہو گیا'), 'success');
+                
+                document.getElementById('vehicleForm').reset();
+                showPage('vehicleManagementPage');
+                
+            } catch (error) {
+                console.error('Error submitting vehicle form:', error);
+                showNotification(getTranslation('❌ حدث خطأ أثناء حفظ بيانات المركبة', '❌ Error saving vehicle data', '❌ گاڑی کا ڈیٹا محفوظ کرنے میں خرابی'), 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
         async function submitRepresentativeForm(event) {
             event.preventDefault();
             
@@ -1968,6 +2400,18 @@
                 const workbook = XLSX.utils.table_to_book(table, {sheet: "طلبات السلفيات"});
                 XLSX.writeFile(workbook, "advance_requests.xlsx");
                 logActivity('تصدير بيانات', `قام ${systemState.currentSupervisor.fullName} بتصدير بيانات طلبات السلفيات`);
+                showNotification(getTranslation('✅ تم تحميل ملف Excel بنجاح', '✅ Excel file downloaded successfully', '✅ ایکسل فائل کامیابی سے ڈاؤن لوڈ ہو گئی'), 'success');
+            } catch (error) {
+                console.error('Error exporting to Excel:', error);
+            }
+        }
+
+        function exportVehiclesToExcel() {
+            try {
+                const table = document.getElementById('vehiclesTable');
+                const workbook = XLSX.utils.table_to_book(table, {sheet: "المركبات"});
+                XLSX.writeFile(workbook, "vehicles.xlsx");
+                logActivity('تصدير بيانات', `قام ${systemState.currentSupervisor.fullName} بتصدير بيانات المركبات`);
                 showNotification(getTranslation('✅ تم تحميل ملف Excel بنجاح', '✅ Excel file downloaded successfully', '✅ ایکسل فائل کامیابی سے ڈاؤن لوڈ ہو گئی'), 'success');
             } catch (error) {
                 console.error('Error exporting to Excel:', error);
@@ -2349,6 +2793,7 @@
             document.getElementById('jobForm').addEventListener('submit', submitJobApplication);
             document.getElementById('editJobForm').addEventListener('submit', updateJobApplication);
             document.getElementById('advanceRequestForm').addEventListener('submit', submitAdvanceRequest);
+            document.getElementById('vehicleForm').addEventListener('submit', submitVehicleForm);
             document.getElementById('representativeForm').addEventListener('submit', submitRepresentativeForm);
             document.getElementById('supervisorForm').addEventListener('submit', submitSupervisorForm);
             
