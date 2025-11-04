@@ -408,7 +408,8 @@
             <div class="form-container">
                 <!-- Profile Header -->
                 <div class="profile-header">
-                    <img src="https://i.ibb.co/vrKBxqC/profile.jpg" alt="Ahmed Al-Sadiq" class="profile-image">
+                    <!-- تم تغيير الصورة الشخصية لمشرف نظام التوظيف -->
+                    <img src="https://i.ibb.co/93nBztgK/profile.jpg" alt="Ahmed Al-Sadiq" class="profile-image">
                     <div class="profile-info">
                         <h2 class="profile-name" id="currentSupervisorName">أحمد الصادق</h2>
                         <p class="profile-role" id="currentSupervisorRole" data-ar="مشرف نظام التوظيف" data-en="Employment System Supervisor" data-ur="ملازمت کے نظام کا سپروائزر">مشرف نظام التوظيف</p>
@@ -722,6 +723,14 @@
                         <div class="form-group">
                             <label class="form-label" data-ar="رقم اللوحة" data-en="Plate Number" data-ur="پلیٹ نمبر">رقم اللوحة</label>
                             <input type="text" class="form-input" id="vehiclePlateNumber" required>
+                        </div>
+                    </div>
+
+                    <!-- تم إضافة حقل معرف السائق هنا -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-ar="معرف السائق" data-en="Driver ID" data-ur="ڈرائیور آئی ڈی">معرف السائق</label>
+                            <input type="text" class="form-input" id="driverId" required>
                         </div>
                     </div>
 
@@ -1778,6 +1787,7 @@
                     vehicleType: document.getElementById('advanceVehicleType').value,
                     amount: document.getElementById('advanceAmount').value,
                     vehiclePlate: document.getElementById('vehiclePlateNumber').value.trim(),
+                    driverId: document.getElementById('driverId').value.trim(), // تم إضافة معرف السائق هنا
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date(),
                     status: 'pending',
@@ -1785,7 +1795,7 @@
                     addedBy: systemState.currentSupervisor.fullName
                 };
 
-                if (!formData.employeeName || !formData.project || !formData.residenceNumber || !formData.vehicleType || !formData.amount || !formData.vehiclePlate) {
+                if (!formData.employeeName || !formData.project || !formData.residenceNumber || !formData.vehicleType || !formData.amount || !formData.vehiclePlate || !formData.driverId) {
                     showNotification(getTranslation('❌ يرجى ملء جميع الحقول المطلوبة', '❌ Please fill all required fields', '❌ براہ کرم تمام ضروری فیلڈز کو پُر کریں'), 'error');
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
